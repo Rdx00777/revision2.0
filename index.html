@@ -1,0 +1,48 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Revision Tracker</title>
+<link rel="stylesheet" href="style.css" />
+<link rel="manifest" href="manifest.json" />
+</head>
+
+<body>
+<header>
+  <h1>Revision Tracker</h1>
+  <button id="addSubjectBtn">+ Add Subject</button>
+</header>
+
+<main>
+  <div id="subjectList"></div>
+  <div id="subjectContent"></div>
+</main>
+
+<!-- Modals -->
+<div id="subjectModal" class="modal hidden">
+  <div class="modal-content">
+    <h2>Add Subject</h2>
+    <input id="subjectNameInput" placeholder="Subject Name" />
+    <button id="saveSubjectBtn">Save</button>
+    <button onclick="closeSubjectModal()">Close</button>
+  </div>
+</div>
+
+<div id="topicModal" class="modal hidden">
+  <div class="modal-content">
+    <h2>Add Topic</h2>
+    <input id="topicTitleInput" placeholder="Topic Title" />
+    <textarea id="topicDescInput" placeholder="Description"></textarea>
+    <button id="saveTopicBtn">Save</button>
+    <button onclick="closeTopicModal()">Close</button>
+  </div>
+</div>
+
+<script src="db.js"></script>
+<script src="app.js"></script>
+<script src="scheduler.js"></script>
+<script src="pomodoro.js"></script>
+</body>
+</html>
