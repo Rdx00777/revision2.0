@@ -80,7 +80,7 @@ export function playAlarm() {
             gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
             setTimeout(() => gain.gain.setValueAtTime(0, audioCtx.currentTime), 200);
         } else {
-            clearInterval(alarmInt); // Stop trying if audio context closes
+            clearInterval(alarmInt);
         }
     }, 600);
 }
