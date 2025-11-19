@@ -172,21 +172,21 @@
         <div class="nav-icon" onclick="app.switchView('view-timer', this)">⏱️</div>
     </nav>
     
-    <script type="module">
+        <script type="module">
         import * as app from './src/app.js';
         import * as data from './src/data.js';
         import * as logic from './src/logic.js';
         import * as render from './src/render.js';
         import * as timer from './src/timer.js';
         
-        // Expose modules globally for HTML onclick attributes
+        // CRITICAL: Expose modules globally
         window.app = app;
         window.data = data;
         window.logic = logic;
         window.render = render;
         window.timer = timer;
 
-        // Start the application after all modules are loaded
+        // Start the application
         app.initialize();
     </script>
 </body>
