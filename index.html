@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NeonFocus Nature</title>
+    <title>NeonFocus V7 Pro</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
     
@@ -19,6 +19,7 @@
             --danger: #ff3b3b;
             --success: #00ff88;
             --font-main: 'Outfit', sans-serif;
+            --default-color: #00f2ff; /* Default subject color */
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -42,146 +43,114 @@
         /* --- LAYOUT --- */
         .view { display: none; padding: 20px; animation: fadeIn 0.3s ease-out; }
         .view.active { display: block; }
-
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        header {
-            padding: 20px 20px 0 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
+        header { padding: 20px 20px 0 20px; display: flex; justify-content: space-between; align-items: center; }
         .brand {
             background: linear-gradient(45deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             font-size: 1.5rem; font-weight: 800;
         }
 
         /* --- CARDS --- */
         .glass-card {
-            background: var(--card-glass);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 15px;
-            position: relative;
+            background: var(--card-glass); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px; padding: 20px; margin-bottom: 15px; position: relative;
         }
-
         .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .big-number { font-size: 2.5rem; color: var(--primary); }
         .stat-label { color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; }
 
-        /* --- SUBJECT ITEMS & NOTES --- */
+        /* --- SUBJECT ITEMS & COLOR CODING --- */
         .subject-item { display: flex; flex-direction: column; gap: 8px; padding-right: 35px; }
-        
-        .subject-header { display: flex; justify-content: space-between; align-items: center; }
-        .subject-meta { font-size: 0.7rem; color: var(--primary); text-transform: uppercase; letter-spacing: 1px; }
-        .subject-name { font-size: 1.1rem; font-weight: 500; line-height: 1.3; }
+        .subject-meta { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; }
 
         .cycle-badge {
-            position: absolute; top: 0; right: 0;
-            background: rgba(255, 255, 255, 0.1);
-            color: var(--text-muted);
-            font-size: 0.7rem; font-weight: bold;
-            padding: 4px 10px;
-            border-bottom-left-radius: 12px;
-            border-left: 1px solid rgba(255,255,255,0.1);
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            position: absolute; top: 0; right: 0; background: rgba(255, 255, 255, 0.1);
+            color: var(--text-muted); font-size: 0.7rem; font-weight: bold;
+            padding: 4px 10px; border-bottom-left-radius: 12px;
         }
 
-        .notes-area {
-            display: none; margin-top: 10px; padding-top: 10px;
-            border-top: 1px solid rgba(255,255,255,0.1);
-        }
+        .notes-area { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); }
         .notes-area.visible { display: block; animation: fadeIn 0.2s; }
-        
         textarea.notes-input {
-            width: 100%; background: rgba(0,0,0,0.3); border: none;
-            color: #ccc; font-family: monospace; font-size: 0.9rem;
-            padding: 10px; border-radius: 8px; resize: vertical; min-height: 80px;
+            width: 100%; background: rgba(0,0,0,0.3); border: none; color: #ccc; font-family: monospace;
+            font-size: 0.9rem; padding: 10px; border-radius: 8px; resize: vertical; min-height: 80px;
         }
 
-        .status-badge {
-            font-size: 0.75rem; padding: 4px 8px; border-radius: 12px;
-            background: rgba(255,255,255,0.1); display: inline-block;
-        }
         .status-due { background: rgba(255, 59, 59, 0.2); color: #ff8888; border: 1px solid #ff3b3b; }
         .status-good { background: rgba(0, 242, 255, 0.1); color: var(--text-muted); border: 1px solid rgba(255,255,255,0.1); }
 
-        /* --- CONTROLS --- */
-        .btn-icon { background: none; border: none; cursor: pointer; font-size: 1rem; opacity: 0.7; transition: 0.2s; }
-        .btn-icon:active { transform: scale(0.8); }
+        /* --- STUDY MODE --- */
+        .flashcard-container {
+            perspective: 1000px;
+            width: 100%; height: 350px;
+            position: relative;
+        }
+        .flashcard {
+            position: absolute; width: 100%; height: 100%;
+            transform-style: preserve-3d; transition: transform 0.6s;
+            background: var(--card-glass); border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        .flashcard.flipped { transform: rotateY(180deg); }
         
-        .btn-main {
-            width: 100%; background: linear-gradient(90deg, var(--secondary), var(--primary));
-            border: none; color: white; padding: 15px; border-radius: 12px;
-            font-weight: 700; font-size: 1rem; cursor: pointer; margin-top: 10px;
-            box-shadow: 0 4px 15px rgba(0, 242, 255, 0.2);
+        .card-face {
+            position: absolute; width: 100%; height: 100%;
+            backface-visibility: hidden; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; text-align: center;
+            padding: 30px;
         }
-        .btn-main:active { transform: scale(0.98); }
-        .btn-danger { background: rgba(255, 59, 59, 0.2); color: var(--danger); border: 1px solid var(--danger); box-shadow: none; }
-        .btn-secondary { background: rgba(255,255,255,0.1); box-shadow: none; }
+        .card-back { transform: rotateY(180deg); }
 
-        .btn-revised {
-            background: var(--primary); color: black; border: none;
-            padding: 8px 16px; border-radius: 20px; font-weight: bold;
-            font-size: 0.8rem; cursor: pointer;
+        .difficulty-btns { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 20px; }
+        .difficulty-btns button {
+            padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s;
+            box-shadow: none; border: 1px solid transparent;
         }
+        .difficulty-easy { background: var(--success); color: black; }
+        .difficulty-medium { background: var(--primary); color: black; }
+        .difficulty-hard { background: var(--danger); color: white; }
 
+        /* --- FORMS & NAV (Standard styles kept) --- */
         input, select {
             width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2);
             color: white; padding: 15px; border-radius: 12px; margin-bottom: 10px;
             font-family: var(--font-main); font-size: 1rem;
         }
-        select { appearance: none; background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23ffffff%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E"); background-repeat: no-repeat; background-position: right 15px top 50%; background-size: 12px auto; }
-
-        /* --- HEATMAP --- */
-        .heatmap-container { display: flex; gap: 3px; flex-wrap: wrap; justify-content: center; padding: 10px 0; }
-        .heat-day { width: 10px; height: 10px; border-radius: 2px; background: rgba(255,255,255,0.1); }
-        .heat-1 { background: rgba(0, 242, 255, 0.3); }
-        .heat-2 { background: rgba(0, 242, 255, 0.6); }
-        .heat-3 { background: rgba(0, 242, 255, 1.0); box-shadow: 0 0 5px var(--primary); }
-
-        /* --- NAVIGATION --- */
+        .btn-main {
+            width: 100%; background: linear-gradient(90deg, var(--secondary), var(--primary));
+            border: none; color: white; padding: 15px; border-radius: 12px;
+            font-weight: 700; font-size: 1rem; cursor: pointer; margin-top: 10px;
+        }
         .navbar {
             position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-            width: 95%; max-width: 450px; height: 65px;
-            background: var(--nav-glass); backdrop-filter: blur(15px);
-            border-radius: 35px; border: 1px solid rgba(255,255,255,0.1);
-            display: flex; justify-content: space-around; align-items: center;
-            z-index: 100; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            width: 95%; max-width: 450px; height: 65px; background: var(--nav-glass);
+            backdrop-filter: blur(15px); border-radius: 35px; border: 1px solid rgba(255,255,255,0.1);
+            display: flex; justify-content: space-around; align-items: center; z-index: 100;
         }
-        .nav-icon { font-size: 1.4rem; opacity: 0.5; transition: 0.3s; cursor: pointer; }
+        .nav-icon { font-size: 1.2rem; opacity: 0.5; transition: 0.3s; cursor: pointer; }
         .nav-icon.active { opacity: 1; color: var(--primary); transform: scale(1.2); }
 
-        /* --- TIMER OVERLAY --- */
-        #timer-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black;
-            z-index: 999; display: flex; flex-direction: column; justify-content: center; align-items: center;
-            opacity: 0; pointer-events: none; transition: opacity 0.3s;
-        }
+        /* --- TIMER --- */
+        #timer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; z-index: 999; display: flex; flex-direction: column; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
         #timer-overlay.visible { opacity: 1; pointer-events: all; }
         .timer-text { font-size: 6rem; font-weight: 300; font-variant-numeric: tabular-nums; }
         
         /* --- MODAL & TOAST --- */
         .modal {
-            position: fixed; top:0; left:0; width:100%; height:100%;
-            background: rgba(0,0,0,0.9); z-index: 200;
-            display: flex; justify-content: center; align-items: center;
-            opacity: 0; pointer-events: none; transition: 0.3s;
+            position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.9);
+            z-index: 200; display: flex; justify-content: center; align-items: center; opacity: 0;
+            pointer-events: none; transition: 0.3s;
         }
         .modal.open { opacity: 1; pointer-events: all; }
         .modal-content { width: 85%; max-width: 320px; }
-
+        
         #toast {
             visibility: hidden; min-width: 250px; background-color: #1e1e1e; color: #fff;
-            text-align: center; border-radius: 50px; padding: 16px;
-            position: fixed; z-index: 1000; left: 50%; bottom: 100px;
-            transform: translateX(-50%); border: 1px solid var(--primary);
+            text-align: center; border-radius: 50px; padding: 16px; position: fixed; z-index: 1000;
+            left: 50%; bottom: 100px; transform: translateX(-50%); border: 1px solid var(--primary);
         }
         #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
         @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 100px; opacity: 1;} }
@@ -199,18 +168,40 @@
     <section id="view-dashboard" class="view active">
         <div class="glass-card">
             <div class="stat-grid">
-                <div>
-                    <div class="big-number" id="due-count">0</div>
-                    <div class="stat-label">Due Today</div>
-                </div>
-                <div>
-                    <div class="big-number" id="streak-count">🔥 0</div>
-                    <div class="stat-label">Day Streak</div>
-                </div>
+                <div><div class="big-number" id="due-count">0</div><div class="stat-label">Due Today</div></div>
+                <div><div class="big-number" id="streak-count">🔥 0</div><div class="stat-label">Day Streak</div></div>
             </div>
         </div>
         <h3>Priorities</h3>
+        <button class="btn-main" id="start-study-btn" onclick="switchView('study', this.parentElement.querySelector('#study-nav-icon'))">Start Active Recall Drill</button>
         <div id="due-list"></div>
+    </section>
+
+    <section id="view-study" class="view">
+        <h3 id="study-title">Active Recall Drill</h3>
+        <div id="study-mode-content">
+            <div class="flashcard-container">
+                <div id="current-flashcard" class="flashcard">
+                    <div id="card-front" class="card-face">
+                        <div style="font-size:1.5rem; margin-bottom:20px; color:var(--text-muted);">Welcome to Study Mode!</div>
+                        <p>Click "Start Drill" below to begin testing due topics.</p>
+                        <button class="btn-main" onclick="loadFlashcard()">Start Drill</button>
+                    </div>
+                    <div id="card-back" class="card-face card-back" style="padding-top:100px;">
+                        <div style="font-size:1.5rem; margin-bottom:20px;">Recall Rating</div>
+                        <div class="difficulty-btns">
+                            <button class="difficulty-easy" onclick="markRecall('easy')">Easy (x2)</button>
+                            <button class="difficulty-medium" onclick="markRecall('medium')">Medium (x1)</button>
+                            <button class="difficulty-hard" onclick="markRecall('hard')">Hard (x0.5)</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="study-controls">
+                <button class="btn-main btn-secondary" style="margin-top:20px;" onclick="flipCard()">Show Answer / Rate</button>
+            </div>
+            <p id="study-empty" style="text-align:center; color:#666; padding:20px; display:none;">🎉 All done for today!</p>
+        </div>
     </section>
 
     <section id="view-subjects" class="view">
@@ -218,6 +209,7 @@
         <div class="glass-card">
             <input type="text" id="inp-subject" placeholder="Subject (e.g. Anthropology)">
             <input type="text" id="inp-topic" placeholder="Topic Name">
+            <input type="color" id="inp-color" value="#00f2ff" style="height:45px; padding:5px;">
             <button class="btn-main" onclick="addTopic()">+ Add Topic</button>
         </div>
         <h3>Library</h3>
@@ -241,6 +233,13 @@
         </div>
     </section>
 
+    <section id="view-history" class="view">
+        <h3>Timeline</h3>
+        <div class="glass-card" id="history-list">
+            <p style="text-align:center; color:#555">No activity yet.</p>
+        </div>
+    </section>
+
     <section id="view-timer" class="view">
         <div style="text-align: center; margin-top: 40px;">
             <div class="glass-card">
@@ -248,6 +247,14 @@
                 <input type="number" id="timer-input" value="25" style="text-align:center; font-size:2rem;">
                 <div class="stat-label">MINUTES</div>
                 
+                <div style="margin-top: 20px;">
+                    <label class="stat-label" style="display:block; margin-bottom:10px;">Study Cycle</label>
+                    <select id="cycle-select" style="text-align:center;">
+                        <option value="pomodoro">🍅 Pomodoro (25/5)</option>
+                        <option value="5217">🧠 Deep Focus (52/17)</option>
+                    </select>
+                </div>
+
                 <div style="margin-top: 20px;">
                     <label class="stat-label" style="display:block; margin-bottom:10px;">Soundscape</label>
                     <select id="sound-select" style="text-align:center;">
@@ -263,6 +270,7 @@
 
     <nav class="navbar">
         <div class="nav-icon active" onclick="switchView('dashboard', this)">📊</div>
+        <div class="nav-icon" id="study-nav-icon" onclick="switchView('study', this)">🧠</div>
         <div class="nav-icon" onclick="switchView('subjects', this)">📚</div>
         <div class="nav-icon" onclick="switchView('profile', this)">👤</div>
         <div class="nav-icon" onclick="switchView('timer', this)">⏱️</div>
@@ -271,9 +279,15 @@
     <div class="modal" id="edit-modal">
         <div class="glass-card modal-content">
             <h3>Edit Topic</h3>
+            <div class="stat-label">Next Date</div>
             <input type="date" id="edit-date">
+            <div class="stat-label">Topic Name</div>
             <input type="text" id="edit-name">
+            <div class="stat-label">Subject</div>
             <input type="text" id="edit-subject">
+            <div class="stat-label">Subject Color</div>
+            <input type="color" id="edit-color" style="height:45px; padding:5px;">
+
             <div style="display:flex; gap:10px; margin-top:15px;">
                 <button class="btn-main btn-danger" onclick="deleteTopic()">Delete</button>
                 <button class="btn-main" onclick="saveEdit()">Save</button>
@@ -291,42 +305,57 @@
     <div id="toast">Notification</div>
 
     <script>
-        // --- CONFIG ---
-        const STORAGE_KEY = 'neon_focus_v6';
+        // --- CONFIG & STATE ---
+        const STORAGE_KEY = 'neon_focus_v7';
+        // Intervals: Easy advances cycle +2, Medium +1, Hard +0.5 (rounded up)
         const INTERVALS = [3, 7, 14, 30, 60, 90]; 
         let appData = loadData();
         let timerInt = null;
         let audioCtx = null;
         let currentAudio = null;
         let editingId = null;
+        let studyTopics = [];
+        let currentStudyIndex = 0;
+        const DEFAULT_COLOR = '#00f2ff';
 
-        // --- SOUND ASSETS (Google Hosted) ---
+        // --- SOUND ASSETS ---
         const SOUNDS = {
             rain: 'https://actions.google.com/sounds/v1/weather/rain_heavy_loud.ogg',
             forest: 'https://actions.google.com/sounds/v1/ambiences/forest_morning.ogg'
         };
 
-        // --- INIT ---
+        // --- INIT & DATA MANAGEMENT ---
+        function loadData() {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            let data = raw ? JSON.parse(raw) : { 
+                topics: [], history: [], streak: 0, lastLogin: '', username: '', 
+                subjectColors: {} // New field
+            };
+            // Data Migration Check
+            data.topics.forEach(t => {
+                if (!t.subjectColor) t.subjectColor = data.subjectColors[t.subject] || DEFAULT_COLOR;
+            });
+            return data;
+        }
+        function saveData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); }
+        function vibrate(ms) { if(navigator.vibrate) navigator.vibrate(ms); }
+        
         document.getElementById('header-date').innerText = new Date().toLocaleDateString(undefined, {weekday:'short', day:'numeric', month:'short'});
         if(appData.username) document.getElementById('inp-username').value = appData.username;
         checkStreak();
         renderAll();
 
-        function loadData() {
-            const raw = localStorage.getItem(STORAGE_KEY);
-            return raw ? JSON.parse(raw) : { topics: [], history: [], streak: 0, lastLogin: '', username: '' };
-        }
-        function saveData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); }
-        function vibrate(ms) { if(navigator.vibrate) navigator.vibrate(ms); }
-
         // --- CORE ACTIONS ---
         function addTopic() {
             const sub = document.getElementById('inp-subject').value;
             const top = document.getElementById('inp-topic').value;
+            const color = document.getElementById('inp-color').value;
+
             if(!sub || !top) { showToast("Fill all fields"); return; }
 
+            appData.subjectColors[sub] = color; // Save color mapping
             appData.topics.push({
-                id: Date.now(), subject: sub, topic: top, notes: "",
+                id: Date.now(), subject: sub, topic: top, notes: "", subjectColor: color,
                 cycle: 0, nextDate: new Date().toISOString().split('T')[0]
             });
             saveData();
@@ -335,50 +364,111 @@
             renderAll();
         }
 
-        function markRevised(id) {
+        function markRevised(id, difficulty = 'medium') {
             const t = appData.topics.find(x => x.id === id);
             if(!t) return;
             
             if(!appData.history) appData.history = [];
             appData.history.push({ date: new Date().toISOString().split('T')[0], title: t.topic });
 
-            const days = INTERVALS[t.cycle] || 30;
-            const next = new Date(); next.setDate(next.getDate() + days);
-            t.nextDate = next.toISOString().split('T')[0];
+            // Difficulty Multiplier
+            const multiplier = difficulty === 'easy' ? 2 : difficulty === 'hard' ? 0.5 : 1;
+            
+            // Advance cycle index based on difficulty
             t.cycle = Math.min(t.cycle + 1, INTERVALS.length - 1);
+            
+            // Calculate days to add (Base interval * Multiplier)
+            const baseDays = INTERVALS[t.cycle] || 30;
+            const daysToAdd = Math.ceil(baseDays * multiplier); 
 
-            saveData(); renderAll(); vibrate([50, 50]); showToast(`Next review in ${days} days`);
+            const next = new Date(); next.setDate(next.getDate() + daysToAdd);
+            t.nextDate = next.toISOString().split('T')[0];
+
+            saveData(); 
+            vibrate([50, 50]);
+            showToast(`Reviewed! Next check in ${daysToAdd} days.`);
+            return daysToAdd;
+        }
+
+        // --- ACTIVE RECALL STUDY MODE ---
+        function loadFlashcard() {
+            const today = new Date().toISOString().split('T')[0];
+            studyTopics = appData.topics.filter(t => t.nextDate <= today).sort(() => 0.5 - Math.random()); // Shuffle due topics
+            currentStudyIndex = 0;
+            
+            if (studyTopics.length === 0) {
+                document.getElementById('study-mode-content').style.display = 'none';
+                document.getElementById('study-empty').style.display = 'block';
+                return;
+            }
+            document.getElementById('study-empty').style.display = 'none';
+            document.getElementById('study-mode-content').style.display = 'block';
+            showNextFlashcard();
+        }
+
+        function showNextFlashcard() {
+            const flashcardEl = document.getElementById('current-flashcard');
+            flashcardEl.classList.remove('flipped'); // Reset card flip
+            
+            if (currentStudyIndex >= studyTopics.length) {
+                // End of drill
+                document.getElementById('study-mode-content').style.display = 'none';
+                document.getElementById('study-empty').style.display = 'block';
+                renderAll(); // Final render to update dashboard
+                return;
+            }
+
+            const t = studyTopics[currentStudyIndex];
+            const color = t.subjectColor || DEFAULT_COLOR;
+
+            // Front: Question
+            document.getElementById('card-front').innerHTML = `
+                <div style="font-size:0.8rem; color:${color}; margin-bottom:10px;">${t.subject}</div>
+                <div style="font-size:1.8rem; font-weight:700;">${t.topic}</div>
+                <div style="margin-top:20px; color:${color};">Think of the answer!</div>
+            `;
+
+            // Back: Answer/Notes + Rating
+            document.getElementById('card-back').innerHTML = `
+                <div style="font-size:1.5rem; margin-bottom:10px; color:${color};">Answer / Notes:</div>
+                <div style="font-size:1rem; color:#ccc; max-height:100px; overflow-y:auto;">${t.notes || 'No notes available. Click "⚙️" on the topic card to add some!'}</div>
+                <div style="font-size:1.5rem; margin-top:20px;">Recall Rating</div>
+                <div class="difficulty-btns">
+                    <button class="difficulty-easy" onclick="markRecall('easy', ${t.id})">Easy (+x2)</button>
+                    <button class="difficulty-medium" onclick="markRecall('medium', ${t.id})">Medium (+x1)</button>
+                    <button class="difficulty-hard" onclick="markRecall('hard', ${t.id})">Hard (+x0.5)</button>
+                </div>
+            `;
+        }
+        
+        function flipCard() {
+            document.getElementById('current-flashcard').classList.toggle('flipped');
+            vibrate(10);
+        }
+
+        function markRecall(difficulty, id) {
+            markRevised(id, difficulty);
+            currentStudyIndex++;
+            showNextFlashcard();
         }
 
         // --- RENDERING ---
-        function renderAll() { renderDashboard(); renderSubjects(); renderHeatmap(); }
-
-        function renderDashboard() {
-            const list = document.getElementById('due-list'); list.innerHTML = '';
-            const today = new Date().toISOString().split('T')[0];
-            let count = 0;
-            appData.topics.forEach(t => {
-                if(t.nextDate <= today) { count++; list.appendChild(createCard(t, true)); }
-            });
-            if(count === 0) list.innerHTML = `<div style="text-align:center; color:#666; padding:20px;">All caught up!</div>`;
-            document.getElementById('due-count').innerText = count;
-            document.getElementById('streak-count').innerText = `🔥 ${appData.streak}`;
-        }
-
         function renderSubjects() {
             const list = document.getElementById('all-list'); list.innerHTML = '';
             [...appData.topics].sort((a,b) => a.subject.localeCompare(b.subject)).forEach(t => list.appendChild(createCard(t, false)));
         }
 
         function createCard(t, isDue) {
+            const color = t.subjectColor || DEFAULT_COLOR;
             const div = document.createElement('div');
             div.className = 'glass-card subject-item';
             div.innerHTML = `
-                <div class="cycle-badge">Cycle ${t.cycle}</div>
+                <div class="cycle-badge" style="background-color:${color}; color:#000; border-color:${color};">C${t.cycle}</div>
                 <div class="subject-header">
-                    <div><div class="subject-meta">${t.subject}</div><div class="subject-name">${t.topic}</div></div>
+                    <div><div class="subject-meta" style="color:${color};">${t.subject}</div><div class="subject-name">${t.topic}</div></div>
                     ${isDue ? `<button class="btn-revised" onclick="markRevised(${t.id})">✔ DONE</button>` : ''}
                 </div>
+                
                 <div class="date-control">
                     <span class="status-badge ${isDue ? 'status-due' : 'status-good'}">${isDue ? 'DUE NOW' : 'Wait'}</span>
                     <div>
@@ -394,38 +484,56 @@
             return div;
         }
 
-        // --- NOTES & HEATMAP ---
-        function toggleNotes(id) { document.getElementById(`notes-${id}`).classList.toggle('visible'); vibrate(10); }
-        function saveNotes(id, val) { const t = appData.topics.find(x => x.id === id); if(t) { t.notes = val; saveData(); } }
-
-        function renderHeatmap() {
-            const container = document.getElementById('heatmap'); container.innerHTML = '';
-            const activityMap = {};
-            (appData.history || []).forEach(h => { activityMap[h.date] = (activityMap[h.date] || 0) + 1; });
-            for(let i = 84; i >= 0; i--) {
-                const d = new Date(); d.setDate(new Date().getDate() - i);
-                const dateStr = d.toISOString().split('T')[0];
-                const count = activityMap[dateStr] || 0;
-                const div = document.createElement('div');
-                div.className = `heat-day ${count > 4 ? 'heat-3' : count > 1 ? 'heat-2' : count > 0 ? 'heat-1' : ''}`;
-                container.appendChild(div);
-            }
+        // --- EDIT/DELETE LOGIC ---
+        function openEdit(id) {
+            editingId = id; const t = appData.topics.find(x => x.id === id);
+            document.getElementById('edit-date').value = t.nextDate;
+            document.getElementById('edit-name').value = t.topic;
+            document.getElementById('edit-subject').value = t.subject;
+            document.getElementById('edit-color').value = t.subjectColor || DEFAULT_COLOR;
+            document.getElementById('edit-modal').classList.add('open');
         }
+        function saveEdit() {
+            const t = appData.topics.find(x => x.id === editingId);
+            const newSubject = document.getElementById('edit-subject').value;
+            const newColor = document.getElementById('edit-color').value;
 
-        // --- TIMER & AUDIO LOGIC ---
+            t.nextDate = document.getElementById('edit-date').value;
+            t.topic = document.getElementById('edit-name').value;
+            t.subject = newSubject;
+            t.subjectColor = newColor;
+            
+            appData.subjectColors[newSubject] = newColor; // Update global color map
+            
+            saveData(); renderAll(); closeModal();
+        }
+        function deleteTopic() { if(confirm("Delete?")) { appData.topics = appData.topics.filter(x => x.id !== editingId); saveData(); renderAll(); closeModal(); } }
+        function closeModal() { document.getElementById('edit-modal').classList.remove('open'); }
+
+        // --- TIMER & AUDIO LOGIC (52/17 Cycle Added) ---
         function startFocus() {
-            const mins = document.getElementById('timer-input').value;
-            let secs = mins * 60;
+            const cycleType = document.getElementById('cycle-select').value;
+            let totalMins;
+            let breakMins;
+
+            if (cycleType === '5217') {
+                totalMins = 52; breakMins = 17;
+                showToast("Starting 52/17 Cycle");
+            } else {
+                totalMins = 25; breakMins = 5;
+                showToast("Starting Pomodoro Cycle");
+            }
+            
+            let secs = totalMins * 60;
             const disp = document.getElementById('timer-display');
             const type = document.getElementById('sound-select').value;
             
             document.getElementById('timer-overlay').classList.add('visible');
             if (navigator.wakeLock) navigator.wakeLock.request('screen').catch(e=>{});
 
-            // Play Ambience
+            // Ambience Audio (same as V6)
             if(type !== 'silent' && SOUNDS[type]) {
-                currentAudio = new Audio(SOUNDS[type]);
-                currentAudio.loop = true;
+                currentAudio = new Audio(SOUNDS[type]); currentAudio.loop = true;
                 currentAudio.play().catch(e => console.log("Audio blocked"));
             }
 
@@ -441,6 +549,8 @@
                     vibrate([500, 200, 500]);
                     if(currentAudio) { currentAudio.pause(); currentAudio = null; }
                     playAlarm();
+                    // Alert user to take a break (simplified logic for single-file)
+                    setTimeout(() => alert(`Time for a ${breakMins} minute break!`), 1000);
                 }
             }, 1000);
         }
@@ -457,10 +567,7 @@
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
             osc.connect(gain); gain.connect(audioCtx.destination);
-            osc.type = 'sine'; 
-            osc.frequency.setValueAtTime(800, audioCtx.currentTime);
-            osc.start();
-            // Rhythmic beeping
+            osc.type = 'sine'; osc.frequency.setValueAtTime(800, audioCtx.currentTime); osc.start();
             setInterval(() => {
                 if(audioCtx && audioCtx.state === 'running') {
                     gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
@@ -469,12 +576,25 @@
             }, 600);
         }
 
-        // --- BACKUP & UTILS ---
+        // --- UTILS (Heatmap, Streak, Toast, etc. - Remainder of V6 logic) ---
+        function toggleNotes(id) { document.getElementById(`notes-${id}`).classList.toggle('visible'); vibrate(10); }
+        function saveNotes(id, val) { const t = appData.topics.find(x => x.id === id); if(t) { t.notes = val; saveData(); } }
+        function renderHeatmap() {
+            const container = document.getElementById('heatmap'); container.innerHTML = '';
+            const activityMap = {};
+            (appData.history || []).forEach(h => { activityMap[h.date] = (activityMap[h.date] || 0) + 1; });
+            for(let i = 84; i >= 0; i--) {
+                const d = new Date(); d.setDate(new Date().getDate() - i);
+                const dateStr = d.toISOString().split('T')[0];
+                const count = activityMap[dateStr] || 0;
+                const div = document.createElement('div');
+                div.className = `heat-day ${count > 4 ? 'heat-3' : count > 1 ? 'heat-2' : count > 0 ? 'heat-1' : ''}`;
+                container.appendChild(div);
+            }
+        }
         function exportData() {
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(new Blob([JSON.stringify(appData)], {type: "application/json"}));
-            a.download = `neon_backup_${new Date().toISOString().split('T')[0]}.json`;
-            a.click(); vibrate(20);
+            const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(appData)], {type: "application/json"}));
+            a.download = `neon_backup_${new Date().toISOString().split('T')[0]}.json`; a.click(); vibrate(20);
         }
         function importData(input) {
             const reader = new FileReader();
@@ -486,13 +606,13 @@
             };
             if(input.files[0]) reader.readAsText(input.files[0]);
         }
-
         function updateUsername() { appData.username = document.getElementById('inp-username').value; saveData(); }
         function switchView(view, btn) {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.getElementById('view-' + view).classList.add('active');
             document.querySelectorAll('.nav-icon').forEach(n => n.classList.remove('active'));
             btn.classList.add('active'); vibrate(10);
+            if(view === 'study') loadFlashcard(); // Load cards when switching to study view
         }
         function showToast(msg) {
             const t = document.getElementById("toast"); t.innerText = msg; t.className = "show";
@@ -506,25 +626,6 @@
                 appData.lastLogin = today; saveData();
             }
         }
-        // Edit Logic
-        function openEdit(id) {
-            editingId = id; const t = appData.topics.find(x => x.id === id);
-            document.getElementById('edit-date').value = t.nextDate;
-            document.getElementById('edit-name').value = t.topic;
-            document.getElementById('edit-subject').value = t.subject;
-            document.getElementById('edit-modal').classList.add('open');
-        }
-        function saveEdit() {
-            const t = appData.topics.find(x => x.id === editingId);
-            t.nextDate = document.getElementById('edit-date').value;
-            t.topic = document.getElementById('edit-name').value;
-            t.subject = document.getElementById('edit-subject').value;
-            saveData(); renderAll(); closeModal();
-        }
-        function deleteTopic() {
-            if(confirm("Delete?")) { appData.topics = appData.topics.filter(x => x.id !== editingId); saveData(); renderAll(); closeModal(); }
-        }
-        function closeModal() { document.getElementById('edit-modal').classList.remove('open'); }
     </script>
 </body>
 </html>
