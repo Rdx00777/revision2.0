@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NeonFocus V9 Modular Pro</title>
+    <title>NeonFocus V9.1 Modular Pro</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/main.css">
-</head>
+    </head>
 <body class="theme-neon">
 
     <header>
@@ -24,7 +24,7 @@
             </div>
         </div>
         <h3>Priorities</h3>
-        <button class="btn-main" id="start-study-btn" onclick="app.switchView('study', document.querySelector('#study-nav-icon'))">Start Active Recall Drill</button>
+        <button class="btn-main" id="start-study-btn" onclick="app.switchView('view-study', document.querySelector('#study-nav-icon'))">Start Active Recall Drill</button>
         <div id="due-list"></div>
     </section>
 
@@ -164,12 +164,12 @@
     <div id="toast">Notification</div>
 
     <nav class="navbar">
-        <div class="nav-icon active" onclick="app.switchView('dashboard', this)">📊</div>
-        <div class="nav-icon" id="study-nav-icon" onclick="app.switchView('study', this)">🧠</div>
-        <div class="nav-icon" onclick="app.switchView('subjects', this)">📚</div>
-        <div class="nav-icon" onclick="app.switchView('history', this)">🕒</div>
-        <div class="nav-icon" onclick="app.switchView('profile', this)">👤</div>
-        <div class="nav-icon" onclick="app.switchView('timer', this)">⏱️</div>
+        <div class="nav-icon active" onclick="app.switchView('view-dashboard', this)">📊</div>
+        <div class="nav-icon" id="study-nav-icon" onclick="app.switchView('view-study', this)">🧠</div>
+        <div class="nav-icon" onclick="app.switchView('view-subjects', this)">📚</div>
+        <div class="nav-icon" onclick="app.switchView('view-history', this)">🕒</div>
+        <div class="nav-icon" onclick="app.switchView('view-profile', this)">👤</div>
+        <div class="nav-icon" onclick="app.switchView('view-timer', this)">⏱️</div>
     </nav>
     
     <script type="module">
@@ -179,7 +179,7 @@
         import * as render from './src/render.js';
         import * as timer from './src/timer.js';
         
-        // Expose modules globally for HTML onclick attributes (e.g., onclick="logic.addTopic()")
+        // Expose modules globally for HTML onclick attributes
         window.app = app;
         window.data = data;
         window.logic = logic;
