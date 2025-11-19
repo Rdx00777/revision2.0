@@ -34,23 +34,13 @@
             background-attachment: fixed;
         }
 
-        /* --- ANIMATIONS --- */
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(0, 242, 255, 0.4); }
-            70% { box-shadow: 0 0 0 10px rgba(0, 242, 255, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(0, 242, 255, 0); }
-        }
-
         h1, h2, h3 { margin: 0; font-weight: 700; letter-spacing: -0.5px; }
 
         /* --- LAYOUT --- */
-        .view { display: none; padding: 20px; animation: slideUp 0.4s ease-out; }
+        .view { display: none; padding: 20px; animation: slideUp 0.3s ease-out; }
         .view.active { display: block; }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         header {
             padding: 20px 20px 0 20px;
@@ -66,7 +56,7 @@
             font-size: 1.5rem;
         }
 
-        /* --- CARDS & GLASSMORPHISM --- */
+        /* --- CARDS --- */
         .glass-card {
             background: var(--card-glass);
             backdrop-filter: blur(12px);
@@ -75,7 +65,6 @@
             border-radius: 16px;
             padding: 20px;
             margin-bottom: 15px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
 
         .stat-grid {
@@ -87,7 +76,7 @@
         .big-number { font-size: 2.5rem; color: var(--primary); }
         .stat-label { color: var(--text-muted); font-size: 0.9rem; }
 
-        /* --- LISTS --- */
+        /* --- LIST ITEMS --- */
         .subject-item {
             display: flex;
             flex-direction: column;
@@ -127,12 +116,11 @@
             border-radius: 6px;
             padding: 4px 8px;
             font-size: 0.8rem;
-            font-family: var(--font-main);
             cursor: pointer;
         }
 
-        /* --- INPUTS & BUTTONS --- */
-        input[type="text"], input[type="date"], input[type="number"] {
+        /* --- BUTTONS & INPUTS --- */
+        input {
             width: 100%;
             background: rgba(0,0,0,0.3);
             border: 1px solid rgba(255,255,255,0.2);
@@ -143,7 +131,6 @@
             font-family: var(--font-main);
             font-size: 1rem;
         }
-
         input:focus { outline: none; border-color: var(--primary); }
 
         .btn-main {
@@ -157,7 +144,6 @@
             font-size: 1rem;
             cursor: pointer;
             margin-top: 10px;
-            box-shadow: 0 4px 15px rgba(0, 242, 255, 0.3);
         }
 
         .btn-revised {
@@ -169,97 +155,53 @@
             font-weight: bold;
             font-size: 0.8rem;
             cursor: pointer;
-            animation: pulse 2s infinite;
         }
 
-        /* --- NAVIGATION --- */
+        /* --- NAV --- */
         .navbar {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 90%;
-            max-width: 400px;
-            height: 65px;
-            background: var(--nav-glass);
-            backdrop-filter: blur(15px);
-            border-radius: 35px;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            border: 1px solid rgba(255,255,255,0.1);
-            z-index: 100;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            width: 90%; max-width: 400px; height: 65px;
+            background: var(--nav-glass); backdrop-filter: blur(15px);
+            border-radius: 35px; border: 1px solid rgba(255,255,255,0.1);
+            display: flex; justify-content: space-around; align-items: center;
+            z-index: 100; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
         }
-
-        .nav-icon {
-            font-size: 1.5rem;
-            opacity: 0.5;
-            transition: 0.3s;
-            cursor: pointer;
-        }
-
-        .nav-icon.active {
-            opacity: 1;
-            color: var(--primary);
-            transform: scale(1.2);
-            text-shadow: 0 0 10px var(--primary);
-        }
+        .nav-icon { font-size: 1.5rem; opacity: 0.5; transition: 0.3s; cursor: pointer; }
+        .nav-icon.active { opacity: 1; color: var(--primary); transform: scale(1.2); }
 
         /* --- TIMER OVERLAY --- */
         #timer-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: black;
-            z-index: 999;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: black; z-index: 999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s;
         }
-
         #timer-overlay.visible { opacity: 1; pointer-events: all; }
 
-        .timer-text {
-            font-size: 6rem;
-            font-weight: 300;
-            font-variant-numeric: tabular-nums;
-            color: white;
-            text-shadow: 0 0 20px rgba(255,255,255,0.5);
-        }
+        .timer-text { font-size: 6rem; font-weight: 300; font-variant-numeric: tabular-nums; color: white; }
+        .timer-status { color: var(--text-muted); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 20px; }
+        .btn-stop { background: transparent; border: 2px solid var(--danger); color: var(--danger); padding: 15px 40px; border-radius: 30px; font-size: 1rem; margin-top: 30px; cursor: pointer; }
 
-        .timer-status {
-            color: var(--text-muted);
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            margin-bottom: 20px;
-            font-size: 0.9rem;
-        }
-
-        .btn-stop {
-            background: transparent;
-            border: 2px solid var(--danger);
-            color: var(--danger);
-            padding: 15px 40px;
-            border-radius: 30px;
-            font-size: 1rem;
-            margin-top: 30px;
-            cursor: pointer;
-        }
-        
-        /* Modal for Date Edit */
+        /* --- TOAST & MODAL --- */
         .modal {
             position: fixed; top:0; left:0; width:100%; height:100%;
-            background: rgba(0,0,0,0.8);
-            z-index: 200;
+            background: rgba(0,0,0,0.8); z-index: 200;
             display: flex; justify-content: center; align-items: center;
             opacity: 0; pointer-events: none; transition: 0.3s;
         }
         .modal.open { opacity: 1; pointer-events: all; }
         .modal-content { width: 80%; max-width: 300px; }
+
+        #toast {
+            visibility: hidden; min-width: 250px; background-color: #333; color: #fff;
+            text-align: center; border-radius: 50px; padding: 16px;
+            position: fixed; z-index: 1000; left: 50%; bottom: 100px;
+            transform: translateX(-50%); font-size: 0.9rem; border: 1px solid var(--primary);
+        }
+        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+        
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 100px; opacity: 1;} }
+        @keyframes fadeout { from {bottom: 100px; opacity: 1;} to {bottom: 0; opacity: 0;} }
 
     </style>
 </head>
@@ -267,7 +209,7 @@
 
     <header>
         <div class="brand">MindFlow</div>
-        <div style="font-size:0.8rem; color:var(--text-muted)" id="current-date">Today</div>
+        <div style="font-size:0.8rem; color:var(--text-muted)" id="current-date"></div>
     </header>
 
     <section id="view-dashboard" class="view active">
@@ -285,16 +227,15 @@
         </div>
 
         <h3>Ready to Revise</h3>
-        <div id="due-list">
-            </div>
+        <div id="due-list"></div>
     </section>
 
     <section id="view-subjects" class="view">
         <h3>Add New Topic</h3>
         <div class="glass-card">
-            <input type="text" id="inp-subject" placeholder="Subject (e.g. Anthropology)">
-            <input type="text" id="inp-topic" placeholder="Topic (e.g. Darwin's Theory)">
-            <button class="btn-main" onclick="addTopic()">+ Add to Tracker</button>
+            <input type="text" id="inp-subject" placeholder="Subject">
+            <input type="text" id="inp-topic" placeholder="Topic Name">
+            <button class="btn-main" onclick="addTopic()">+ Add</button>
         </div>
 
         <h3>All Topics</h3>
@@ -304,11 +245,11 @@
     <section id="view-timer" class="view">
         <div style="text-align: center; margin-top: 40px;">
             <div class="glass-card">
-                <h2 style="margin-bottom: 20px;">Deep Focus</h2>
+                <h2 style="margin-bottom: 20px;">Focus Timer</h2>
                 <input type="number" id="timer-input" value="25" style="text-align:center; font-size:2rem;">
                 <div class="stat-label">MINUTES</div>
             </div>
-            <button class="btn-main" onclick="startFocus()">ENTER THE VOID</button>
+            <button class="btn-main" onclick="startFocus()">START SESSION</button>
         </div>
     </section>
 
@@ -319,153 +260,109 @@
     </nav>
 
     <div id="timer-overlay">
-        <div class="timer-status" id="timer-msg">FOCUS MODE ACTIVE</div>
+        <div class="timer-status" id="timer-msg">FOCUS MODE</div>
         <div class="timer-text" id="timer-display">25:00</div>
-        <button class="btn-stop" onclick="stopFocus()">STOP / DISMISS</button>
+        <button class="btn-stop" onclick="stopFocus()">STOP</button>
     </div>
 
     <div class="modal" id="date-modal">
         <div class="glass-card modal-content">
             <h3>Reschedule</h3>
-            <p style="color:#888; font-size:0.9rem">Pick a new date for this topic:</p>
             <input type="date" id="manual-date-input">
             <button class="btn-main" onclick="saveManualDate()">Save Date</button>
             <button style="margin-top:10px; background:none; border:none; color:#888; width:100%" onclick="closeModal()">Cancel</button>
         </div>
     </div>
 
-    <script>
-        // --- STATE MANAGEMENT ---
-        const STORAGE_KEY = 'neon_revise_v1';
-        let appData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
-            topics: [],
-            streak: 0,
-            lastLogin: new Date().toDateString()
-        };
-        
-        // Revision Intervals (Fibonacci-ish)
-        const INTERVALS = [1, 3, 7, 14, 30, 60, 90]; 
-        
-        let timerInt = null;
-        let audioCtx = null;
-        let editingTopicId = null;
+    <div id="toast">Notification</div>
 
-        // --- INITIALIZATION ---
-        document.getElementById('current-date').innerText = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+    <script>
+        const STORAGE_KEY = 'neon_revise_v2';
+        let appData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || { topics: [], streak: 0, lastLogin: '' };
+        
+        // UPDATED INTERVALS: Starts at 3 days, then 7, etc.
+        const INTERVALS = [3, 7, 14, 30, 60, 90]; 
+        
+        let timerInt, audioCtx, editingTopicId;
+
+        // INIT
+        document.getElementById('current-date').innerText = new Date().toLocaleDateString('en-US', { weekday: 'short', day: 'numeric' });
         checkStreak();
         render();
-
-        // --- CORE LOGIC ---
 
         function addTopic() {
             const sub = document.getElementById('inp-subject').value;
             const top = document.getElementById('inp-topic').value;
-            if(!sub || !top) return alert("Please fill both fields");
+            if(!sub || !top) return alert("Fill all fields");
 
-            const newTopic = {
+            appData.topics.push({
                 id: Date.now(),
                 subject: sub,
                 topic: top,
                 cycle: 0,
                 nextDate: new Date().toISOString().split('T')[0] // Due today
-            };
-
-            appData.topics.push(newTopic);
+            });
             save();
             document.getElementById('inp-topic').value = '';
-            alert("Topic Added!");
+            showToast("Topic Added");
             render();
         }
 
         function markRevised(id) {
             const t = appData.topics.find(x => x.id === id);
             if(t) {
-                // Logic: Move to next interval
+                // Calculate next date based on interval
                 const daysToAdd = INTERVALS[t.cycle] || 30;
                 const next = new Date();
                 next.setDate(next.getDate() + daysToAdd);
                 
+                // Update topic data
                 t.nextDate = next.toISOString().split('T')[0];
                 t.cycle = Math.min(t.cycle + 1, INTERVALS.length - 1);
                 
                 save();
-                render();
-                triggerConfetti(); // Visual reward
+                render(); // Instantly refresh list
+                
+                // Show notification explaining what happened
+                showToast(`Great! Next review in ${daysToAdd} days.`);
             }
         }
 
-        // --- MANUAL DATE EDITING ---
-        function openDateEdit(id) {
-            editingTopicId = id;
-            document.getElementById('date-modal').classList.add('open');
-            // Set current value
-            const t = appData.topics.find(x => x.id === id);
-            document.getElementById('manual-date-input').value = t.nextDate;
-        }
-
-        function saveManualDate() {
-            const newDate = document.getElementById('manual-date-input').value;
-            if(newDate && editingTopicId) {
-                const t = appData.topics.find(x => x.id === editingTopicId);
-                t.nextDate = newDate;
-                save();
-                render();
-                closeModal();
-            }
-        }
-
-        function closeModal() {
-            document.getElementById('date-modal').classList.remove('open');
-            editingTopicId = null;
-        }
-
-        // --- RENDERING ---
         function render() {
             const today = new Date().toISOString().split('T')[0];
             const dueList = document.getElementById('due-list');
             const allList = document.getElementById('all-list');
             
-            dueList.innerHTML = '';
-            allList.innerHTML = '';
-
+            dueList.innerHTML = ''; allList.innerHTML = '';
             let dueCount = 0;
 
             appData.topics.forEach(t => {
                 const isDue = t.nextDate <= today;
                 if(isDue) dueCount++;
 
-                // Create Card HTML
-                const card = document.createElement('div');
-                card.className = 'glass-card subject-item';
-                
                 const html = `
                     <div class="subject-header">
                         <div>
-                            <div style="font-size:0.8rem; color:var(--primary); text-transform:uppercase; letter-spacing:1px;">${t.subject}</div>
+                            <div style="font-size:0.75rem; color:var(--primary); text-transform:uppercase;">${t.subject}</div>
                             <div class="subject-name">${t.topic}</div>
                         </div>
                         ${isDue ? `<button class="btn-revised" onclick="markRevised(${t.id})">✔ DONE</button>` : ''}
                     </div>
                     <div class="date-control">
-                        <span class="status-badge ${isDue ? 'status-due' : 'status-good'}">
-                            ${isDue ? 'DUE NOW' : 'Waiting'}
-                        </span>
-                        <button class="date-picker-btn" onclick="openDateEdit(${t.id})">
-                            📅 ${t.nextDate} (Edit)
-                        </button>
+                        <span class="status-badge ${isDue ? 'status-due' : 'status-good'}">${isDue ? 'DUE NOW' : 'Waiting'}</span>
+                        <button class="date-picker-btn" onclick="openDateEdit(${t.id})">📅 ${t.nextDate}</button>
                     </div>
                 `;
-                
+
+                const card = document.createElement('div');
+                card.className = 'glass-card subject-item';
                 card.innerHTML = html;
 
-                // Append to lists
-                allList.appendChild(card.cloneNode(true)); // Show all in subjects view
+                // Add to "All Topics"
+                allList.appendChild(card.cloneNode(true));
+
+                // Add to "Due List" only if due
                 if(isDue) {
-                    // Re-attach events for the cloned node
-                    const tempDiv = document.createElement('div');
-                    tempDiv.innerHTML = html;
-                    const clone = tempDiv.firstElementChild; // Using a hack to get fresh HTML for the due list is messy, better to re-generate
-                    // Re-generating simple way:
                     const dueCard = document.createElement('div');
                     dueCard.className = 'glass-card subject-item';
                     dueCard.innerHTML = html;
@@ -473,110 +370,96 @@
                 }
             });
 
-            // Empty states
-            if(dueCount === 0) dueList.innerHTML = `<div style="text-align:center; padding:20px; color:#555;"><i>Nothing due today. Relax!</i></div>`;
-            
+            if(dueCount === 0) dueList.innerHTML = `<div style="text-align:center; padding:20px; color:#555;"><i>No revisions due today.</i></div>`;
             document.getElementById('due-count').innerText = dueCount;
             document.getElementById('streak-count').innerText = `🔥 ${appData.streak}`;
         }
 
-        function save() {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+        // --- UTILS ---
+        function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); }
+        
+        function showToast(msg) {
+            const x = document.getElementById("toast");
+            x.innerText = msg;
+            x.className = "show";
+            setTimeout(() => { x.className = x.className.replace("show", ""); }, 3000);
         }
 
-        // --- STREAK LOGIC ---
+        function openDateEdit(id) {
+            editingTopicId = id;
+            document.getElementById('date-modal').classList.add('open');
+            document.getElementById('manual-date-input').value = appData.topics.find(x => x.id === id).nextDate;
+        }
+        function saveManualDate() {
+            const newDate = document.getElementById('manual-date-input').value;
+            if(newDate) {
+                appData.topics.find(x => x.id === editingTopicId).nextDate = newDate;
+                save(); render(); closeModal();
+                showToast("Date Updated Manually");
+            }
+        }
+        function closeModal() { document.getElementById('date-modal').classList.remove('open'); }
+
+        function switchView(view, btn) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById('view-' + view).classList.add('active');
+            document.querySelectorAll('.nav-icon').forEach(n => n.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
         function checkStreak() {
             const today = new Date().toDateString();
             if(appData.lastLogin !== today) {
-                // If logged in yesterday, increment. If gap > 1 day, reset.
-                const yesterday = new Date();
-                yesterday.setDate(yesterday.getDate() - 1);
-                
-                if(appData.lastLogin === yesterday.toDateString()) {
-                    appData.streak++;
-                } else {
-                    appData.streak = 1; // Reset or start new
-                }
+                const yest = new Date(); yest.setDate(yest.getDate() - 1);
+                if(appData.lastLogin === yest.toDateString()) appData.streak++;
+                else appData.streak = 1;
                 appData.lastLogin = today;
                 save();
             }
         }
 
-        // --- VIEW SWITCHER ---
-        function switchView(viewName, btn) {
-            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            document.getElementById('view-' + viewName).classList.add('active');
-            
-            document.querySelectorAll('.nav-icon').forEach(n => n.classList.remove('active'));
-            btn.classList.add('active');
-        }
-
-        // --- POMODORO TIMER ---
+        // --- AUDIO & TIMER ---
         function startFocus() {
             const mins = document.getElementById('timer-input').value;
-            let seconds = mins * 60;
-            const display = document.getElementById('timer-display');
-            const overlay = document.getElementById('timer-overlay');
-            
-            overlay.classList.add('visible');
-            
-            // Prevent screen sleep
+            let secs = mins * 60;
+            const disp = document.getElementById('timer-display');
+            document.getElementById('timer-overlay').classList.add('visible');
             if (navigator.wakeLock) navigator.wakeLock.request('screen').catch(e=>{});
 
             clearInterval(timerInt);
             timerInt = setInterval(() => {
-                seconds--;
-                const m = Math.floor(seconds / 60).toString().padStart(2,'0');
-                const s = (seconds % 60).toString().padStart(2,'0');
-                display.innerText = `${m}:${s}`;
-
-                if(seconds <= 0) {
+                secs--;
+                const m = Math.floor(secs / 60).toString().padStart(2,'0');
+                const s = (secs % 60).toString().padStart(2,'0');
+                disp.innerText = `${m}:${s}`;
+                if(secs <= 0) {
                     clearInterval(timerInt);
-                    display.style.color = 'var(--danger)';
-                    display.innerText = "00:00";
-                    document.getElementById('timer-msg').innerText = "TIME IS UP";
+                    disp.style.color = 'var(--danger)';
+                    disp.innerText = "00:00";
                     playBeep();
                 }
             }, 1000);
         }
-
         function stopFocus() {
             clearInterval(timerInt);
             document.getElementById('timer-overlay').classList.remove('visible');
             document.getElementById('timer-display').style.color = 'white';
-            document.getElementById('timer-msg').innerText = "FOCUS MODE ACTIVE";
-            // Stop beep logic would go here
             if(audioCtx) audioCtx.close(); audioCtx = null;
         }
-
         function playBeep() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.type = 'square';
-            osc.frequency.setValueAtTime(440, audioCtx.currentTime);
-            
-            // Pulse beep
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.type = 'square'; osc.frequency.setValueAtTime(440, audioCtx.currentTime);
             osc.start();
             setInterval(() => {
-                if(audioCtx.state === 'running') {
+                if(audioCtx && audioCtx.state === 'running') {
                     gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
                     setTimeout(() => gain.gain.setValueAtTime(0, audioCtx.currentTime), 200);
                 }
             }, 500);
         }
-
-        function triggerConfetti() {
-            // Simple visual feedback animation helper
-            const btn = document.activeElement;
-            if(btn) {
-                btn.innerText = "Great!";
-                setTimeout(() => render(), 500);
-            }
-        }
-
     </script>
 </body>
 </html>
