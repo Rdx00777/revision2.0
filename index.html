@@ -3,20 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NeonFocus Tracker</title>
+    <title>NeonFocus Ultimate</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
     
     <style>
         :root {
             --bg-dark: #050505;
-            --card-glass: rgba(255, 255, 255, 0.08);
-            --nav-glass: rgba(10, 10, 10, 0.85);
+            --card-glass: rgba(255, 255, 255, 0.06);
+            --nav-glass: rgba(10, 10, 10, 0.95);
             --primary: #00f2ff; /* Neon Cyan */
             --secondary: #bd00ff; /* Neon Purple */
             --text-main: #ffffff;
             --text-muted: #888888;
             --danger: #ff3b3b;
+            --success: #00ff88;
             --font-main: 'Outfit', sans-serif;
         }
 
@@ -27,15 +28,16 @@
             background-color: var(--bg-dark);
             font-family: var(--font-main);
             color: var(--text-main);
-            padding-bottom: 90px; /* Space for nav */
+            padding-bottom: 90px;
             overflow-x: hidden;
-            background-image: radial-gradient(circle at 10% 20%, rgba(189, 0, 255, 0.1) 0%, transparent 40%),
-                              radial-gradient(circle at 90% 80%, rgba(0, 242, 255, 0.1) 0%, transparent 40%);
+            background-image: radial-gradient(circle at 10% 20%, rgba(189, 0, 255, 0.06) 0%, transparent 40%),
+                              radial-gradient(circle at 90% 80%, rgba(0, 242, 255, 0.06) 0%, transparent 40%);
             background-attachment: fixed;
             min-height: 100vh;
         }
 
         h1, h2, h3 { margin: 0; font-weight: 700; letter-spacing: -0.5px; }
+        h3 { margin-bottom: 15px; margin-top: 20px; font-size: 1.2rem; }
 
         /* --- LAYOUT --- */
         .view { display: none; padding: 20px; animation: fadeIn 0.3s ease-out; }
@@ -54,11 +56,10 @@
             background: linear-gradient(45deg, var(--primary), var(--secondary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            font-size: 1.5rem;
-            font-weight: 800;
+            font-size: 1.5rem; font-weight: 800;
         }
 
-        /* --- GLASS CARDS --- */
+        /* --- CARDS --- */
         .glass-card {
             background: var(--card-glass);
             backdrop-filter: blur(12px);
@@ -67,18 +68,45 @@
             border-radius: 16px;
             padding: 20px;
             margin-bottom: 15px;
+            position: relative;
+            transition: transform 0.2s;
         }
 
         .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .big-number { font-size: 2.5rem; color: var(--primary); }
-        .stat-label { color: var(--text-muted); font-size: 0.9rem; }
+        .stat-label { color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; }
 
-        /* --- LIST ITEMS --- */
-        .subject-item { display: flex; flex-direction: column; gap: 8px; }
+        /* --- SUBJECT ITEMS & NOTES --- */
+        .subject-item { display: flex; flex-direction: column; gap: 8px; padding-right: 35px; }
         
         .subject-header { display: flex; justify-content: space-between; align-items: center; }
-        .subject-meta { font-size: 0.75rem; color: var(--primary); text-transform: uppercase; letter-spacing: 1px; }
-        .subject-name { font-size: 1.1rem; font-weight: 500; }
+        .subject-meta { font-size: 0.7rem; color: var(--primary); text-transform: uppercase; letter-spacing: 1px; }
+        .subject-name { font-size: 1.1rem; font-weight: 500; line-height: 1.3; }
+
+        .cycle-badge {
+            position: absolute; top: 0; right: 0;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-muted);
+            font-size: 0.7rem; font-weight: bold;
+            padding: 4px 10px;
+            border-bottom-left-radius: 12px;
+            border-left: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .notes-area {
+            display: none;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        .notes-area.visible { display: block; animation: fadeIn 0.2s; }
+        
+        textarea.notes-input {
+            width: 100%; background: rgba(0,0,0,0.3); border: none;
+            color: #ccc; font-family: monospace; font-size: 0.9rem;
+            padding: 10px; border-radius: 8px; resize: vertical; min-height: 80px;
+        }
 
         .status-badge {
             font-size: 0.75rem; padding: 4px 8px; border-radius: 12px;
@@ -87,51 +115,44 @@
         .status-due { background: rgba(255, 59, 59, 0.2); color: #ff8888; border: 1px solid #ff3b3b; }
         .status-good { background: rgba(0, 242, 255, 0.1); color: var(--text-muted); border: 1px solid rgba(255,255,255,0.1); }
 
-        .date-control {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.05);
-        }
-
-        .date-picker-btn {
-            background: none; border: 1px solid rgba(255,255,255,0.2);
-            color: var(--text-muted); border-radius: 6px; padding: 4px 8px;
-            font-size: 0.8rem; cursor: pointer;
-        }
-
-        /* --- HISTORY TIMELINE --- */
-        .history-item {
-            display: flex; gap: 15px; padding: 15px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
-        .history-date {
-            font-size: 0.8rem; color: var(--text-muted);
-            min-width: 60px; text-align: right;
-            border-right: 2px solid var(--secondary);
-            padding-right: 15px;
-        }
-        .history-content { flex: 1; }
-        .history-title { font-weight: bold; font-size: 1rem; }
-        .history-sub { font-size: 0.8rem; color: var(--text-muted); margin-top: 2px; }
-
-        /* --- FORMS & BUTTONS --- */
-        input {
-            width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2);
-            color: white; padding: 15px; border-radius: 12px; margin-bottom: 10px;
-            font-family: var(--font-main); font-size: 1rem;
-        }
-        input:focus { outline: none; border-color: var(--primary); }
-
+        /* --- CONTROLS --- */
+        .btn-icon { background: none; border: none; cursor: pointer; font-size: 1rem; opacity: 0.7; transition: 0.2s; }
+        .btn-icon:active { transform: scale(0.8); }
+        
         .btn-main {
             width: 100%; background: linear-gradient(90deg, var(--secondary), var(--primary));
             border: none; color: white; padding: 15px; border-radius: 12px;
             font-weight: 700; font-size: 1rem; cursor: pointer; margin-top: 10px;
+            box-shadow: 0 4px 15px rgba(0, 242, 255, 0.2);
         }
+        .btn-main:active { transform: scale(0.98); }
+        .btn-danger { background: rgba(255, 59, 59, 0.2); color: var(--danger); border: 1px solid var(--danger); box-shadow: none; }
+        .btn-secondary { background: rgba(255,255,255,0.1); box-shadow: none; }
 
         .btn-revised {
             background: var(--primary); color: black; border: none;
             padding: 8px 16px; border-radius: 20px; font-weight: bold;
             font-size: 0.8rem; cursor: pointer;
         }
+
+        input {
+            width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2);
+            color: white; padding: 15px; border-radius: 12px; margin-bottom: 10px;
+            font-family: var(--font-main); font-size: 1rem;
+        }
+
+        /* --- HEATMAP (GITHUB STYLE) --- */
+        .heatmap-container {
+            display: flex; gap: 3px; flex-wrap: wrap;
+            justify-content: center; padding: 10px 0;
+        }
+        .heat-day {
+            width: 10px; height: 10px; border-radius: 2px;
+            background: rgba(255,255,255,0.1);
+        }
+        .heat-1 { background: rgba(0, 242, 255, 0.3); }
+        .heat-2 { background: rgba(0, 242, 255, 0.6); }
+        .heat-3 { background: rgba(0, 242, 255, 1.0); box-shadow: 0 0 5px var(--primary); }
 
         /* --- NAVIGATION --- */
         .navbar {
@@ -147,42 +168,46 @@
 
         /* --- TIMER OVERLAY --- */
         #timer-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: black; z-index: 999;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black;
+            z-index: 999; display: flex; flex-direction: column; justify-content: center; align-items: center;
             opacity: 0; pointer-events: none; transition: opacity 0.3s;
         }
         #timer-overlay.visible { opacity: 1; pointer-events: all; }
-        .timer-text { font-size: 6rem; font-weight: 300; font-variant-numeric: tabular-nums; color: white; }
-        .btn-stop { border: 2px solid var(--danger); color: var(--danger); background: transparent; padding: 15px 40px; border-radius: 30px; font-size: 1rem; margin-top: 30px; cursor: pointer; }
+        .timer-text { font-size: 6rem; font-weight: 300; font-variant-numeric: tabular-nums; }
+        
+        /* Sound Toggle */
+        .sound-toggle {
+            margin-top: 20px; display: flex; align-items: center; gap: 10px;
+            color: var(--text-muted); font-size: 0.9rem; cursor: pointer;
+        }
+        .sound-checkbox { width: 20px; height: 20px; accent-color: var(--primary); }
 
         /* --- MODAL & TOAST --- */
         .modal {
             position: fixed; top:0; left:0; width:100%; height:100%;
-            background: rgba(0,0,0,0.8); z-index: 200;
+            background: rgba(0,0,0,0.9); z-index: 200;
             display: flex; justify-content: center; align-items: center;
             opacity: 0; pointer-events: none; transition: 0.3s;
         }
         .modal.open { opacity: 1; pointer-events: all; }
-        .modal-content { width: 85%; max-width: 300px; }
+        .modal-content { width: 85%; max-width: 320px; }
 
         #toast {
             visibility: hidden; min-width: 250px; background-color: #1e1e1e; color: #fff;
             text-align: center; border-radius: 50px; padding: 16px;
             position: fixed; z-index: 1000; left: 50%; bottom: 100px;
-            transform: translateX(-50%); font-size: 0.9rem; border: 1px solid var(--primary);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            transform: translateX(-50%); border: 1px solid var(--primary);
         }
         #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
-
         @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 100px; opacity: 1;} }
         @keyframes fadeout { from {bottom: 100px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+
     </style>
 </head>
 <body>
 
     <header>
-        <div class="brand">MindFlow</div>
+        <div class="brand">NeonFocus</div>
         <div style="font-size:0.8rem; color:var(--text-muted)" id="header-date"></div>
     </header>
 
@@ -199,163 +224,171 @@
                 </div>
             </div>
         </div>
-
-        <h3>Ready to Revise</h3>
+        <h3>Priorities</h3>
         <div id="due-list"></div>
     </section>
 
     <section id="view-subjects" class="view">
-        <h3>Add New Topic</h3>
+        <h3>Add Tracker</h3>
         <div class="glass-card">
-            <input type="text" id="inp-subject" placeholder="Subject Name">
-            <input type="text" id="inp-topic" placeholder="Topic Details">
+            <input type="text" id="inp-subject" placeholder="Subject (e.g. Anthropology)">
+            <input type="text" id="inp-topic" placeholder="Topic Name">
             <button class="btn-main" onclick="addTopic()">+ Add Topic</button>
         </div>
-        <h3>All Topics</h3>
+        <h3>Library</h3>
         <div id="all-list"></div>
     </section>
 
-    <section id="view-history" class="view">
-        <h3>Revision History</h3>
-        <div class="glass-card" id="history-list">
-            <p style="color:#666; text-align:center;">No history yet.</p>
+    <section id="view-profile" class="view">
+        <h3>Your Progress</h3>
+        <div class="glass-card">
+            <input type="text" id="inp-username" placeholder="Set Username" style="border:none; font-size:1.5rem; border-bottom:1px solid #333; padding-left:0;" onchange="updateUsername()">
+            <div class="stat-label" style="margin-top:5px;">Activity Heatmap (Last 90 Days)</div>
+            <div class="heatmap-container" id="heatmap"></div>
+        </div>
+        
+        <h3>Data Management</h3>
+        <div class="glass-card">
+            <button class="btn-main btn-secondary" onclick="exportData()">💾 Backup Data (Export)</button>
+            <div style="margin-top:10px; position:relative;">
+                <button class="btn-main btn-secondary">📂 Restore Data (Import)</button>
+                <input type="file" id="import-file" onchange="importData(this)" style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer;">
+            </div>
         </div>
     </section>
 
     <section id="view-timer" class="view">
         <div style="text-align: center; margin-top: 40px;">
             <div class="glass-card">
-                <h2 style="margin-bottom: 20px;">Focus Timer</h2>
+                <h2 style="margin-bottom: 20px;">Deep Focus</h2>
                 <input type="number" id="timer-input" value="25" style="text-align:center; font-size:2rem;">
                 <div class="stat-label">MINUTES</div>
+                
+                <div style="display:flex; justify-content:center;">
+                    <label class="sound-toggle">
+                        <input type="checkbox" id="sound-check" class="sound-checkbox"> 
+                        🎧 Play Brown Noise
+                    </label>
+                </div>
             </div>
-            <button class="btn-main" onclick="startFocus()">ENTER FOCUS MODE</button>
+            <button class="btn-main" onclick="startFocus()">ENTER THE VOID</button>
         </div>
     </section>
 
     <nav class="navbar">
         <div class="nav-icon active" onclick="switchView('dashboard', this)">📊</div>
         <div class="nav-icon" onclick="switchView('subjects', this)">📚</div>
-        <div class="nav-icon" onclick="switchView('history', this)">🕒</div>
+        <div class="nav-icon" onclick="switchView('profile', this)">👤</div>
         <div class="nav-icon" onclick="switchView('timer', this)">⏱️</div>
     </nav>
 
-    <div id="timer-overlay">
-        <div style="color:var(--text-muted); letter-spacing:3px;">FOCUS ACTIVE</div>
-        <div class="timer-text" id="timer-display">25:00</div>
-        <button class="btn-stop" onclick="stopFocus()">STOP SESSION</button>
-    </div>
-
-    <div class="modal" id="date-modal">
+    <div class="modal" id="edit-modal">
         <div class="glass-card modal-content">
-            <h3>Reschedule</h3>
-            <input type="date" id="manual-date-input">
-            <button class="btn-main" onclick="saveManualDate()">Save Date</button>
+            <h3>Edit Topic</h3>
+            <input type="date" id="edit-date">
+            <input type="text" id="edit-name">
+            <input type="text" id="edit-subject">
+            
+            <div style="display:flex; gap:10px; margin-top:15px;">
+                <button class="btn-main btn-danger" onclick="deleteTopic()">Delete</button>
+                <button class="btn-main" onclick="saveEdit()">Save</button>
+            </div>
             <button style="margin-top:10px; width:100%; background:none; border:none; color:#888;" onclick="closeModal()">Cancel</button>
         </div>
+    </div>
+
+    <div id="timer-overlay">
+        <div style="color:var(--text-muted); letter-spacing:3px; margin-bottom:20px;">FOCUS ACTIVE</div>
+        <div class="timer-text" id="timer-display">25:00</div>
+        <button class="btn-main btn-danger" style="width:auto; padding: 10px 40px; margin-top:40px;" onclick="stopFocus()">STOP</button>
     </div>
 
     <div id="toast">Notification</div>
 
     <script>
-        // --- CONFIG ---
-        const STORAGE_KEY = 'neon_revise_v3'; // Version changed to force fresh start if needed
-        // Intervals starting from 3 days
-        const INTERVALS = [3, 7, 14, 30, 60, 90, 120]; 
-
-        // --- STATE ---
+        // --- CONFIG & STATE ---
+        const STORAGE_KEY = 'neon_focus_v5';
+        const INTERVALS = [3, 7, 14, 30, 60, 90]; 
         let appData = loadData();
         let timerInt = null;
         let audioCtx = null;
+        let brownNoiseNode = null;
         let editingId = null;
 
-        function loadData() {
-            const raw = localStorage.getItem(STORAGE_KEY);
-            if(raw) return JSON.parse(raw);
-            return { topics: [], history: [], streak: 0, lastLogin: '' };
-        }
-
-        function saveData() {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
-        }
-
         // --- INIT ---
-        document.getElementById('header-date').innerText = new Date().toLocaleDateString();
+        document.getElementById('header-date').innerText = new Date().toLocaleDateString(undefined, {weekday:'short', day:'numeric', month:'short'});
+        if(appData.username) document.getElementById('inp-username').value = appData.username;
         checkStreak();
         renderAll();
 
-        // --- CORE LOGIC ---
+        function loadData() {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            return raw ? JSON.parse(raw) : { topics: [], history: [], streak: 0, lastLogin: '', username: '' };
+        }
+        function saveData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); }
+        
+        // --- HAPTICS HELPER ---
+        function vibrate(ms) {
+            if(navigator.vibrate) navigator.vibrate(ms);
+        }
+
+        // --- CORE ACTIONS ---
         function addTopic() {
             const sub = document.getElementById('inp-subject').value;
             const top = document.getElementById('inp-topic').value;
-            
-            if(!sub || !top) { showToast("Please fill all fields"); return; }
+            if(!sub || !top) { showToast("Fill all fields"); vibrate(50); return; }
 
-            const newTopic = {
+            appData.topics.push({
                 id: Date.now(),
-                subject: sub,
-                topic: top,
-                cycle: 0,
-                nextDate: getTodayDate()
-            };
-
-            appData.topics.push(newTopic);
+                subject: sub, topic: top, notes: "",
+                cycle: 0, nextDate: new Date().toISOString().split('T')[0]
+            });
             saveData();
-            
-            document.getElementById('inp-subject').value = '';
             document.getElementById('inp-topic').value = '';
-            showToast("Topic Added!");
+            vibrate(20); showToast("Topic Added");
             renderAll();
         }
 
         function markRevised(id) {
-            const topic = appData.topics.find(t => t.id === id);
-            if(!topic) return;
+            const t = appData.topics.find(x => x.id === id);
+            if(!t) return;
 
-            // 1. Add to History
-            if(!appData.history) appData.history = []; // safety check
-            appData.history.unshift({
-                title: topic.topic,
-                subject: topic.subject,
-                date: new Date().toLocaleString()
-            });
+            const today = new Date().toISOString().split('T')[0];
+            
+            // History Logic
+            if(!appData.history) appData.history = [];
+            appData.history.push({ date: today, title: t.topic });
 
-            // 2. Calculate Next Date
-            const daysToAdd = INTERVALS[topic.cycle] || 30;
-            const nextDateObj = new Date();
-            nextDateObj.setDate(nextDateObj.getDate() + daysToAdd);
-            
-            topic.nextDate = nextDateObj.toISOString().split('T')[0];
-            
-            // 3. Advance Cycle
-            topic.cycle = Math.min(topic.cycle + 1, INTERVALS.length - 1);
+            // Schedule Logic
+            const days = INTERVALS[t.cycle] || 30;
+            const next = new Date(); next.setDate(next.getDate() + days);
+            t.nextDate = next.toISOString().split('T')[0];
+            t.cycle = Math.min(t.cycle + 1, INTERVALS.length - 1);
 
             saveData();
             renderAll();
-            showToast(`Great! Next review in ${daysToAdd} days.`);
+            vibrate([50, 50, 50]); // Success vibration
+            showToast(`Next review in ${days} days`);
         }
 
         // --- RENDERING ---
         function renderAll() {
             renderDashboard();
             renderSubjects();
-            renderHistory();
+            renderHeatmap();
         }
 
         function renderDashboard() {
             const list = document.getElementById('due-list');
             list.innerHTML = '';
-            const today = getTodayDate();
+            const today = new Date().toISOString().split('T')[0];
             let count = 0;
-
             appData.topics.forEach(t => {
                 if(t.nextDate <= today) {
-                    count++;
-                    list.appendChild(createCard(t, true));
+                    count++; list.appendChild(createCard(t, true));
                 }
             });
-
-            if(count === 0) list.innerHTML = `<div style="text-align:center; color:#666; padding:20px;">No revisions due today.</div>`;
+            if(count === 0) list.innerHTML = `<div style="text-align:center; color:#666; padding:20px;">All caught up!</div>`;
             document.getElementById('due-count').innerText = count;
             document.getElementById('streak-count').innerText = `🔥 ${appData.streak}`;
         }
@@ -363,38 +396,15 @@
         function renderSubjects() {
             const list = document.getElementById('all-list');
             list.innerHTML = '';
-            // Sort by date
-            const sorted = [...appData.topics].sort((a,b) => new Date(a.nextDate) - new Date(b.nextDate));
+            const sorted = [...appData.topics].sort((a,b) => a.subject.localeCompare(b.subject));
             sorted.forEach(t => list.appendChild(createCard(t, false)));
-        }
-
-        function renderHistory() {
-            const list = document.getElementById('history-list');
-            if(!appData.history || appData.history.length === 0) {
-                list.innerHTML = `<p style="color:#666; text-align:center;">No history yet.</p>`;
-                return;
-            }
-            
-            list.innerHTML = '';
-            // Limit to last 20 items
-            appData.history.slice(0, 20).forEach(h => {
-                const div = document.createElement('div');
-                div.className = 'history-item';
-                div.innerHTML = `
-                    <div class="history-date">${h.date.split(',')[0]}<br><span style="font-size:0.7em">${h.date.split(',')[1]||''}</span></div>
-                    <div class="history-content">
-                        <div class="history-title">${h.title}</div>
-                        <div class="history-sub">${h.subject}</div>
-                    </div>
-                `;
-                list.appendChild(div);
-            });
         }
 
         function createCard(t, isDue) {
             const div = document.createElement('div');
             div.className = 'glass-card subject-item';
             div.innerHTML = `
+                <div class="cycle-badge">Cycle ${t.cycle}</div>
                 <div class="subject-header">
                     <div>
                         <div class="subject-meta">${t.subject}</div>
@@ -402,17 +412,162 @@
                     </div>
                     ${isDue ? `<button class="btn-revised" onclick="markRevised(${t.id})">✔ DONE</button>` : ''}
                 </div>
+                
                 <div class="date-control">
-                    <span class="status-badge ${isDue ? 'status-due' : 'status-good'}">${isDue ? 'DUE NOW' : 'Waiting'}</span>
-                    <button class="date-picker-btn" onclick="openDateEdit(${t.id})">📅 ${t.nextDate}</button>
+                    <span class="status-badge ${isDue ? 'status-due' : 'status-good'}">${isDue ? 'DUE NOW' : 'Wait'}</span>
+                    <div>
+                        <span style="color:#666; font-size:0.8rem; margin-right:10px;">${t.nextDate}</span>
+                        <button class="btn-icon" onclick="toggleNotes(${t.id})">📝</button>
+                        <button class="btn-icon" onclick="openEdit(${t.id})">⚙️</button>
+                    </div>
+                </div>
+
+                <div id="notes-${t.id}" class="notes-area">
+                    <textarea class="notes-input" placeholder="Add notes..." onchange="saveNotes(${t.id}, this.value)">${t.notes || ''}</textarea>
                 </div>
             `;
             return div;
         }
 
-        // --- UTILITIES ---
-        function getTodayDate() { return new Date().toISOString().split('T')[0]; }
+        // --- NOTES LOGIC ---
+        function toggleNotes(id) {
+            const el = document.getElementById(`notes-${id}`);
+            el.classList.toggle('visible');
+            vibrate(10);
+        }
+        function saveNotes(id, val) {
+            const t = appData.topics.find(x => x.id === id);
+            if(t) { t.notes = val; saveData(); }
+        }
 
+        // --- HEATMAP LOGIC (GitHub Style) ---
+        function renderHeatmap() {
+            const container = document.getElementById('heatmap');
+            container.innerHTML = '';
+            const daysBack = 84; // 12 weeks
+            const today = new Date();
+            
+            // Count revisions per day
+            const activityMap = {};
+            (appData.history || []).forEach(h => {
+                activityMap[h.date] = (activityMap[h.date] || 0) + 1;
+            });
+
+            for(let i = daysBack; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(today.getDate() - i);
+                const dateStr = d.toISOString().split('T')[0];
+                const count = activityMap[dateStr] || 0;
+                
+                const div = document.createElement('div');
+                div.className = `heat-day ${count > 4 ? 'heat-3' : count > 1 ? 'heat-2' : count > 0 ? 'heat-1' : ''}`;
+                div.title = `${dateStr}: ${count}`;
+                container.appendChild(div);
+            }
+        }
+
+        // --- DATA BACKUP ---
+        function exportData() {
+            const dataStr = JSON.stringify(appData);
+            const blob = new Blob([dataStr], {type: "application/json"});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `neon_backup_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            vibrate(20);
+        }
+
+        function importData(input) {
+            const file = input.files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if(imported.topics) {
+                        appData = imported;
+                        saveData();
+                        renderAll();
+                        showToast("Data Restored Successfully");
+                        vibrate(50);
+                    }
+                } catch(err) { alert("Invalid File"); }
+            };
+            reader.readAsText(file);
+        }
+
+        // --- TIMER & AUDIO ---
+        function startFocus() {
+            const mins = document.getElementById('timer-input').value;
+            let secs = mins * 60;
+            const disp = document.getElementById('timer-display');
+            document.getElementById('timer-overlay').classList.add('visible');
+            if (navigator.wakeLock) navigator.wakeLock.request('screen').catch(e=>{});
+
+            // Audio
+            if(document.getElementById('sound-check').checked) {
+                initAudio();
+            }
+
+            clearInterval(timerInt);
+            timerInt = setInterval(() => {
+                secs--;
+                const m = Math.floor(secs/60).toString().padStart(2,'0');
+                const s = (secs%60).toString().padStart(2,'0');
+                disp.innerText = `${m}:${s}`;
+                if(secs <= 0) { 
+                    clearInterval(timerInt); 
+                    disp.style.color = 'var(--danger)'; 
+                    vibrate([500, 200, 500]); // Long vibration
+                    stopAudio();
+                }
+            }, 1000);
+        }
+
+        function stopFocus() {
+            clearInterval(timerInt);
+            document.getElementById('timer-overlay').classList.remove('visible');
+            document.getElementById('timer-display').style.color = 'white';
+            stopAudio();
+        }
+
+        // Brown Noise Generator (Web Audio API)
+        function initAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const bufferSize = 4096;
+            const brownNoise = audioCtx.createScriptProcessor(bufferSize, 1, 1);
+            brownNoise.onaudioprocess = function(e) {
+                const output = e.outputBuffer.getChannelData(0);
+                let lastOut = 0;
+                for (let i = 0; i < bufferSize; i++) {
+                    const white = Math.random() * 2 - 1;
+                    output[i] = (lastOut + (0.02 * white)) / 1.02;
+                    lastOut = output[i];
+                    output[i] *= 3.5; 
+                }
+            };
+            brownNoiseNode = brownNoise;
+            brownNoise.connect(audioCtx.destination);
+        }
+
+        function stopAudio() {
+            if(brownNoiseNode) { brownNoiseNode.disconnect(); brownNoiseNode = null; }
+        }
+
+        // --- UTILS ---
+        function updateUsername() { appData.username = document.getElementById('inp-username').value; saveData(); }
+        function switchView(view, btn) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById('view-' + view).classList.add('active');
+            document.querySelectorAll('.nav-icon').forEach(n => n.classList.remove('active'));
+            btn.classList.add('active');
+            vibrate(10);
+        }
+        function showToast(msg) {
+            const t = document.getElementById("toast"); t.innerText = msg; t.className = "show";
+            setTimeout(() => t.className = "", 3000);
+        }
         function checkStreak() {
             const today = new Date().toDateString();
             if(appData.lastLogin !== today) {
@@ -423,89 +578,29 @@
                 saveData();
             }
         }
-
-        function switchView(viewId, btn) {
-            document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
-            document.getElementById('view-' + viewId).classList.add('active');
-            document.querySelectorAll('.nav-icon').forEach(el => el.classList.remove('active'));
-            btn.classList.add('active');
-        }
-
-        function showToast(msg) {
-            const t = document.getElementById("toast");
-            t.innerText = msg;
-            t.className = "show";
-            setTimeout(() => t.className = t.className.replace("show", ""), 3000);
-        }
-
-        // --- MANUAL DATE EDIT ---
-        function openDateEdit(id) {
+        // Edit Logic
+        function openEdit(id) {
             editingId = id;
             const t = appData.topics.find(x => x.id === id);
-            if(t) {
-                document.getElementById('manual-date-input').value = t.nextDate;
-                document.getElementById('date-modal').classList.add('open');
+            document.getElementById('edit-date').value = t.nextDate;
+            document.getElementById('edit-name').value = t.topic;
+            document.getElementById('edit-subject').value = t.subject;
+            document.getElementById('edit-modal').classList.add('open');
+        }
+        function saveEdit() {
+            const t = appData.topics.find(x => x.id === editingId);
+            t.nextDate = document.getElementById('edit-date').value;
+            t.topic = document.getElementById('edit-name').value;
+            t.subject = document.getElementById('edit-subject').value;
+            saveData(); renderAll(); closeModal();
+        }
+        function deleteTopic() {
+            if(confirm("Delete this topic?")) {
+                appData.topics = appData.topics.filter(x => x.id !== editingId);
+                saveData(); renderAll(); closeModal();
             }
         }
-        function saveManualDate() {
-            const val = document.getElementById('manual-date-input').value;
-            if(val && editingId) {
-                const t = appData.topics.find(x => x.id === editingId);
-                t.nextDate = val;
-                saveData();
-                renderAll();
-                closeModal();
-                showToast("Date updated successfully");
-            }
-        }
-        function closeModal() { document.getElementById('date-modal').classList.remove('open'); }
-
-        // --- TIMER & AUDIO ---
-        function startFocus() {
-            const mins = document.getElementById('timer-input').value;
-            let secs = mins * 60;
-            const disp = document.getElementById('timer-display');
-            
-            document.getElementById('timer-overlay').classList.add('visible');
-            if (navigator.wakeLock) navigator.wakeLock.request('screen').catch(e=>{});
-
-            clearInterval(timerInt);
-            timerInt = setInterval(() => {
-                secs--;
-                const m = Math.floor(secs/60).toString().padStart(2,'0');
-                const s = (secs%60).toString().padStart(2,'0');
-                disp.innerText = `${m}:${s}`;
-
-                if(secs <= 0) {
-                    clearInterval(timerInt);
-                    disp.style.color = 'var(--danger)';
-                    playBeep();
-                }
-            }, 1000);
-        }
-
-        function stopFocus() {
-            clearInterval(timerInt);
-            document.getElementById('timer-overlay').classList.remove('visible');
-            document.getElementById('timer-display').style.color = 'white';
-            if(audioCtx) audioCtx.close(); audioCtx = null;
-        }
-
-        function playBeep() {
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.connect(gain); gain.connect(audioCtx.destination);
-            osc.type = 'square'; osc.frequency.setValueAtTime(440, audioCtx.currentTime);
-            osc.start();
-            // Beep-beep-beep pattern
-            setInterval(() => {
-                if(audioCtx && audioCtx.state === 'running') {
-                    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                    setTimeout(() => gain.gain.setValueAtTime(0, audioCtx.currentTime), 150);
-                }
-            }, 400);
-        }
+        function closeModal() { document.getElementById('edit-modal').classList.remove('open'); }
     </script>
 </body>
 </html>
