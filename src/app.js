@@ -30,16 +30,15 @@ export function initialize() {
     renderAll();
 }
 
-// --- NAVIGATION ---
+// --- NAVIGATION (FIXED LOGIC) ---
 export function switchView(viewId, btn) {
-    // Ensure timer and modals are stopped before navigating
+    // 1. Preparation
     stopFocus(); 
     closeModal(); 
     
-    // 1. Hide ALL views and show the targeted view
+    // 2. Hide ALL views and show the targeted view
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     
-    // Use the complete viewId directly (e.g., 'view-dashboard')
     const targetView = document.getElementById(viewId);
 
     if (targetView) {
@@ -50,13 +49,13 @@ export function switchView(viewId, btn) {
         return;
     }
 
-    // 2. Switch active nav icon
+    // 3. Switch active nav icon
     document.querySelectorAll('.nav-icon').forEach(n => n.classList.remove('active'));
     btn.classList.add('active'); 
     
     vibrate(10);
     
-    // 3. Special logic for study mode
+    // 4. Special logic for study mode
     if(viewId === 'view-study') loadFlashcard();
 }
 
