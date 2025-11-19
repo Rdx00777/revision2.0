@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NeonFocus Ultimate</title>
+    <title>NeonFocus Nature</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
     
@@ -69,7 +69,6 @@
             padding: 20px;
             margin-bottom: 15px;
             position: relative;
-            transition: transform 0.2s;
         }
 
         .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
@@ -95,9 +94,7 @@
         }
 
         .notes-area {
-            display: none;
-            margin-top: 10px;
-            padding-top: 10px;
+            display: none; margin-top: 10px; padding-top: 10px;
             border-top: 1px solid rgba(255,255,255,0.1);
         }
         .notes-area.visible { display: block; animation: fadeIn 0.2s; }
@@ -135,21 +132,16 @@
             font-size: 0.8rem; cursor: pointer;
         }
 
-        input {
+        input, select {
             width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2);
             color: white; padding: 15px; border-radius: 12px; margin-bottom: 10px;
             font-family: var(--font-main); font-size: 1rem;
         }
+        select { appearance: none; background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23ffffff%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E"); background-repeat: no-repeat; background-position: right 15px top 50%; background-size: 12px auto; }
 
-        /* --- HEATMAP (GITHUB STYLE) --- */
-        .heatmap-container {
-            display: flex; gap: 3px; flex-wrap: wrap;
-            justify-content: center; padding: 10px 0;
-        }
-        .heat-day {
-            width: 10px; height: 10px; border-radius: 2px;
-            background: rgba(255,255,255,0.1);
-        }
+        /* --- HEATMAP --- */
+        .heatmap-container { display: flex; gap: 3px; flex-wrap: wrap; justify-content: center; padding: 10px 0; }
+        .heat-day { width: 10px; height: 10px; border-radius: 2px; background: rgba(255,255,255,0.1); }
         .heat-1 { background: rgba(0, 242, 255, 0.3); }
         .heat-2 { background: rgba(0, 242, 255, 0.6); }
         .heat-3 { background: rgba(0, 242, 255, 1.0); box-shadow: 0 0 5px var(--primary); }
@@ -175,13 +167,6 @@
         #timer-overlay.visible { opacity: 1; pointer-events: all; }
         .timer-text { font-size: 6rem; font-weight: 300; font-variant-numeric: tabular-nums; }
         
-        /* Sound Toggle */
-        .sound-toggle {
-            margin-top: 20px; display: flex; align-items: center; gap: 10px;
-            color: var(--text-muted); font-size: 0.9rem; cursor: pointer;
-        }
-        .sound-checkbox { width: 20px; height: 20px; accent-color: var(--primary); }
-
         /* --- MODAL & TOAST --- */
         .modal {
             position: fixed; top:0; left:0; width:100%; height:100%;
@@ -246,12 +231,11 @@
             <div class="stat-label" style="margin-top:5px;">Activity Heatmap (Last 90 Days)</div>
             <div class="heatmap-container" id="heatmap"></div>
         </div>
-        
         <h3>Data Management</h3>
         <div class="glass-card">
-            <button class="btn-main btn-secondary" onclick="exportData()">💾 Backup Data (Export)</button>
+            <button class="btn-main btn-secondary" onclick="exportData()">💾 Backup Data</button>
             <div style="margin-top:10px; position:relative;">
-                <button class="btn-main btn-secondary">📂 Restore Data (Import)</button>
+                <button class="btn-main btn-secondary">📂 Restore Data</button>
                 <input type="file" id="import-file" onchange="importData(this)" style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer;">
             </div>
         </div>
@@ -264,11 +248,13 @@
                 <input type="number" id="timer-input" value="25" style="text-align:center; font-size:2rem;">
                 <div class="stat-label">MINUTES</div>
                 
-                <div style="display:flex; justify-content:center;">
-                    <label class="sound-toggle">
-                        <input type="checkbox" id="sound-check" class="sound-checkbox"> 
-                        🎧 Play Brown Noise
-                    </label>
+                <div style="margin-top: 20px;">
+                    <label class="stat-label" style="display:block; margin-bottom:10px;">Soundscape</label>
+                    <select id="sound-select" style="text-align:center;">
+                        <option value="silent">🔕 Silence (Default)</option>
+                        <option value="rain">🌧️ Heavy Rain</option>
+                        <option value="forest">🐦 Forest Morning</option>
+                    </select>
                 </div>
             </div>
             <button class="btn-main" onclick="startFocus()">ENTER THE VOID</button>
@@ -288,7 +274,6 @@
             <input type="date" id="edit-date">
             <input type="text" id="edit-name">
             <input type="text" id="edit-subject">
-            
             <div style="display:flex; gap:10px; margin-top:15px;">
                 <button class="btn-main btn-danger" onclick="deleteTopic()">Delete</button>
                 <button class="btn-main" onclick="saveEdit()">Save</button>
@@ -306,14 +291,20 @@
     <div id="toast">Notification</div>
 
     <script>
-        // --- CONFIG & STATE ---
-        const STORAGE_KEY = 'neon_focus_v5';
+        // --- CONFIG ---
+        const STORAGE_KEY = 'neon_focus_v6';
         const INTERVALS = [3, 7, 14, 30, 60, 90]; 
         let appData = loadData();
         let timerInt = null;
         let audioCtx = null;
-        let brownNoiseNode = null;
+        let currentAudio = null;
         let editingId = null;
+
+        // --- SOUND ASSETS (Google Hosted) ---
+        const SOUNDS = {
+            rain: 'https://actions.google.com/sounds/v1/weather/rain_heavy_loud.ogg',
+            forest: 'https://actions.google.com/sounds/v1/ambiences/forest_morning.ogg'
+        };
 
         // --- INIT ---
         document.getElementById('header-date').innerText = new Date().toLocaleDateString(undefined, {weekday:'short', day:'numeric', month:'short'});
@@ -326,21 +317,16 @@
             return raw ? JSON.parse(raw) : { topics: [], history: [], streak: 0, lastLogin: '', username: '' };
         }
         function saveData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); }
-        
-        // --- HAPTICS HELPER ---
-        function vibrate(ms) {
-            if(navigator.vibrate) navigator.vibrate(ms);
-        }
+        function vibrate(ms) { if(navigator.vibrate) navigator.vibrate(ms); }
 
         // --- CORE ACTIONS ---
         function addTopic() {
             const sub = document.getElementById('inp-subject').value;
             const top = document.getElementById('inp-topic').value;
-            if(!sub || !top) { showToast("Fill all fields"); vibrate(50); return; }
+            if(!sub || !top) { showToast("Fill all fields"); return; }
 
             appData.topics.push({
-                id: Date.now(),
-                subject: sub, topic: top, notes: "",
+                id: Date.now(), subject: sub, topic: top, notes: "",
                 cycle: 0, nextDate: new Date().toISOString().split('T')[0]
             });
             saveData();
@@ -352,41 +338,27 @@
         function markRevised(id) {
             const t = appData.topics.find(x => x.id === id);
             if(!t) return;
-
-            const today = new Date().toISOString().split('T')[0];
             
-            // History Logic
             if(!appData.history) appData.history = [];
-            appData.history.push({ date: today, title: t.topic });
+            appData.history.push({ date: new Date().toISOString().split('T')[0], title: t.topic });
 
-            // Schedule Logic
             const days = INTERVALS[t.cycle] || 30;
             const next = new Date(); next.setDate(next.getDate() + days);
             t.nextDate = next.toISOString().split('T')[0];
             t.cycle = Math.min(t.cycle + 1, INTERVALS.length - 1);
 
-            saveData();
-            renderAll();
-            vibrate([50, 50, 50]); // Success vibration
-            showToast(`Next review in ${days} days`);
+            saveData(); renderAll(); vibrate([50, 50]); showToast(`Next review in ${days} days`);
         }
 
         // --- RENDERING ---
-        function renderAll() {
-            renderDashboard();
-            renderSubjects();
-            renderHeatmap();
-        }
+        function renderAll() { renderDashboard(); renderSubjects(); renderHeatmap(); }
 
         function renderDashboard() {
-            const list = document.getElementById('due-list');
-            list.innerHTML = '';
+            const list = document.getElementById('due-list'); list.innerHTML = '';
             const today = new Date().toISOString().split('T')[0];
             let count = 0;
             appData.topics.forEach(t => {
-                if(t.nextDate <= today) {
-                    count++; list.appendChild(createCard(t, true));
-                }
+                if(t.nextDate <= today) { count++; list.appendChild(createCard(t, true)); }
             });
             if(count === 0) list.innerHTML = `<div style="text-align:center; color:#666; padding:20px;">All caught up!</div>`;
             document.getElementById('due-count').innerText = count;
@@ -394,10 +366,8 @@
         }
 
         function renderSubjects() {
-            const list = document.getElementById('all-list');
-            list.innerHTML = '';
-            const sorted = [...appData.topics].sort((a,b) => a.subject.localeCompare(b.subject));
-            sorted.forEach(t => list.appendChild(createCard(t, false)));
+            const list = document.getElementById('all-list'); list.innerHTML = '';
+            [...appData.topics].sort((a,b) => a.subject.localeCompare(b.subject)).forEach(t => list.appendChild(createCard(t, false)));
         }
 
         function createCard(t, isDue) {
@@ -406,13 +376,9 @@
             div.innerHTML = `
                 <div class="cycle-badge">Cycle ${t.cycle}</div>
                 <div class="subject-header">
-                    <div>
-                        <div class="subject-meta">${t.subject}</div>
-                        <div class="subject-name">${t.topic}</div>
-                    </div>
+                    <div><div class="subject-meta">${t.subject}</div><div class="subject-name">${t.topic}</div></div>
                     ${isDue ? `<button class="btn-revised" onclick="markRevised(${t.id})">✔ DONE</button>` : ''}
                 </div>
-                
                 <div class="date-control">
                     <span class="status-badge ${isDue ? 'status-due' : 'status-good'}">${isDue ? 'DUE NOW' : 'Wait'}</span>
                     <div>
@@ -421,7 +387,6 @@
                         <button class="btn-icon" onclick="openEdit(${t.id})">⚙️</button>
                     </div>
                 </div>
-
                 <div id="notes-${t.id}" class="notes-area">
                     <textarea class="notes-input" placeholder="Add notes..." onchange="saveNotes(${t.id}, this.value)">${t.notes || ''}</textarea>
                 </div>
@@ -429,85 +394,39 @@
             return div;
         }
 
-        // --- NOTES LOGIC ---
-        function toggleNotes(id) {
-            const el = document.getElementById(`notes-${id}`);
-            el.classList.toggle('visible');
-            vibrate(10);
-        }
-        function saveNotes(id, val) {
-            const t = appData.topics.find(x => x.id === id);
-            if(t) { t.notes = val; saveData(); }
-        }
+        // --- NOTES & HEATMAP ---
+        function toggleNotes(id) { document.getElementById(`notes-${id}`).classList.toggle('visible'); vibrate(10); }
+        function saveNotes(id, val) { const t = appData.topics.find(x => x.id === id); if(t) { t.notes = val; saveData(); } }
 
-        // --- HEATMAP LOGIC (GitHub Style) ---
         function renderHeatmap() {
-            const container = document.getElementById('heatmap');
-            container.innerHTML = '';
-            const daysBack = 84; // 12 weeks
-            const today = new Date();
-            
-            // Count revisions per day
+            const container = document.getElementById('heatmap'); container.innerHTML = '';
             const activityMap = {};
-            (appData.history || []).forEach(h => {
-                activityMap[h.date] = (activityMap[h.date] || 0) + 1;
-            });
-
-            for(let i = daysBack; i >= 0; i--) {
-                const d = new Date();
-                d.setDate(today.getDate() - i);
+            (appData.history || []).forEach(h => { activityMap[h.date] = (activityMap[h.date] || 0) + 1; });
+            for(let i = 84; i >= 0; i--) {
+                const d = new Date(); d.setDate(new Date().getDate() - i);
                 const dateStr = d.toISOString().split('T')[0];
                 const count = activityMap[dateStr] || 0;
-                
                 const div = document.createElement('div');
                 div.className = `heat-day ${count > 4 ? 'heat-3' : count > 1 ? 'heat-2' : count > 0 ? 'heat-1' : ''}`;
-                div.title = `${dateStr}: ${count}`;
                 container.appendChild(div);
             }
         }
 
-        // --- DATA BACKUP ---
-        function exportData() {
-            const dataStr = JSON.stringify(appData);
-            const blob = new Blob([dataStr], {type: "application/json"});
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `neon_backup_${new Date().toISOString().split('T')[0]}.json`;
-            a.click();
-            vibrate(20);
-        }
-
-        function importData(input) {
-            const file = input.files[0];
-            if(!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const imported = JSON.parse(e.target.result);
-                    if(imported.topics) {
-                        appData = imported;
-                        saveData();
-                        renderAll();
-                        showToast("Data Restored Successfully");
-                        vibrate(50);
-                    }
-                } catch(err) { alert("Invalid File"); }
-            };
-            reader.readAsText(file);
-        }
-
-        // --- TIMER & AUDIO ---
+        // --- TIMER & AUDIO LOGIC ---
         function startFocus() {
             const mins = document.getElementById('timer-input').value;
             let secs = mins * 60;
             const disp = document.getElementById('timer-display');
+            const type = document.getElementById('sound-select').value;
+            
             document.getElementById('timer-overlay').classList.add('visible');
             if (navigator.wakeLock) navigator.wakeLock.request('screen').catch(e=>{});
 
-            // Audio
-            if(document.getElementById('sound-check').checked) {
-                initAudio();
+            // Play Ambience
+            if(type !== 'silent' && SOUNDS[type]) {
+                currentAudio = new Audio(SOUNDS[type]);
+                currentAudio.loop = true;
+                currentAudio.play().catch(e => console.log("Audio blocked"));
             }
 
             clearInterval(timerInt);
@@ -519,8 +438,9 @@
                 if(secs <= 0) { 
                     clearInterval(timerInt); 
                     disp.style.color = 'var(--danger)'; 
-                    vibrate([500, 200, 500]); // Long vibration
-                    stopAudio();
+                    vibrate([500, 200, 500]);
+                    if(currentAudio) { currentAudio.pause(); currentAudio = null; }
+                    playAlarm();
                 }
             }, 1000);
         }
@@ -529,40 +449,50 @@
             clearInterval(timerInt);
             document.getElementById('timer-overlay').classList.remove('visible');
             document.getElementById('timer-display').style.color = 'white';
-            stopAudio();
+            if(currentAudio) { currentAudio.pause(); currentAudio = null; }
+            if(audioCtx) { audioCtx.close(); audioCtx = null; }
         }
 
-        // Brown Noise Generator (Web Audio API)
-        function initAudio() {
+        function playAlarm() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            const bufferSize = 4096;
-            const brownNoise = audioCtx.createScriptProcessor(bufferSize, 1, 1);
-            brownNoise.onaudioprocess = function(e) {
-                const output = e.outputBuffer.getChannelData(0);
-                let lastOut = 0;
-                for (let i = 0; i < bufferSize; i++) {
-                    const white = Math.random() * 2 - 1;
-                    output[i] = (lastOut + (0.02 * white)) / 1.02;
-                    lastOut = output[i];
-                    output[i] *= 3.5; 
+            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.type = 'sine'; 
+            osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+            osc.start();
+            // Rhythmic beeping
+            setInterval(() => {
+                if(audioCtx && audioCtx.state === 'running') {
+                    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                    setTimeout(() => gain.gain.setValueAtTime(0, audioCtx.currentTime), 200);
                 }
+            }, 600);
+        }
+
+        // --- BACKUP & UTILS ---
+        function exportData() {
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(new Blob([JSON.stringify(appData)], {type: "application/json"}));
+            a.download = `neon_backup_${new Date().toISOString().split('T')[0]}.json`;
+            a.click(); vibrate(20);
+        }
+        function importData(input) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if(imported.topics) { appData = imported; saveData(); renderAll(); showToast("Restored!"); vibrate(50); }
+                } catch(err) { alert("Invalid File"); }
             };
-            brownNoiseNode = brownNoise;
-            brownNoise.connect(audioCtx.destination);
+            if(input.files[0]) reader.readAsText(input.files[0]);
         }
 
-        function stopAudio() {
-            if(brownNoiseNode) { brownNoiseNode.disconnect(); brownNoiseNode = null; }
-        }
-
-        // --- UTILS ---
         function updateUsername() { appData.username = document.getElementById('inp-username').value; saveData(); }
         function switchView(view, btn) {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.getElementById('view-' + view).classList.add('active');
             document.querySelectorAll('.nav-icon').forEach(n => n.classList.remove('active'));
-            btn.classList.add('active');
-            vibrate(10);
+            btn.classList.add('active'); vibrate(10);
         }
         function showToast(msg) {
             const t = document.getElementById("toast"); t.innerText = msg; t.className = "show";
@@ -572,16 +502,13 @@
             const today = new Date().toDateString();
             if(appData.lastLogin !== today) {
                 const yest = new Date(); yest.setDate(yest.getDate() - 1);
-                if(appData.lastLogin === yest.toDateString()) appData.streak++;
-                else appData.streak = 1;
-                appData.lastLogin = today;
-                saveData();
+                if(appData.lastLogin === yest.toDateString()) appData.streak++; else appData.streak = 1;
+                appData.lastLogin = today; saveData();
             }
         }
         // Edit Logic
         function openEdit(id) {
-            editingId = id;
-            const t = appData.topics.find(x => x.id === id);
+            editingId = id; const t = appData.topics.find(x => x.id === id);
             document.getElementById('edit-date').value = t.nextDate;
             document.getElementById('edit-name').value = t.topic;
             document.getElementById('edit-subject').value = t.subject;
@@ -595,10 +522,7 @@
             saveData(); renderAll(); closeModal();
         }
         function deleteTopic() {
-            if(confirm("Delete this topic?")) {
-                appData.topics = appData.topics.filter(x => x.id !== editingId);
-                saveData(); renderAll(); closeModal();
-            }
+            if(confirm("Delete?")) { appData.topics = appData.topics.filter(x => x.id !== editingId); saveData(); renderAll(); closeModal(); }
         }
         function closeModal() { document.getElementById('edit-modal').classList.remove('open'); }
     </script>
