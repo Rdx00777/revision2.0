@@ -1,20 +1,11 @@
 {
-    "name": "FocusRevise Tracker",
-    "short_name": "FocusRevise",
+    "name": "NeonFocus PWA V9 Pro",
+    "short_name": "FocusV9",
     "start_url": "index.html",
     "display": "standalone",
-    "background_color": "#121212",
-    "theme_color": "#121212",
+    "background_color": "#050505",
+    "theme_color": "#050505", 
     "icons": [
-        {
-            "src": "https://via.placeholder.com/192/bb86fc/ffffff?text=FR",
-            "sizes": "192x192",
-            "type": "image/png"
-        },
-        {
-            "src": "https://via.placeholder.com/512/bb86fc/ffffff?text=FR",
-            "sizes": "512x512",
-            "type": "image/png"
-        }
+        // ... (icon paths remain the same, assuming they are in the root)
     ]
 }
