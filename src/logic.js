@@ -1,10 +1,29 @@
 import { getAppData, saveData } from './data.js';
 import { showToast, vibrate, renderAll, closeModal } from './app.js';
+import { generateFlashcardContent } from './render.js';
 import { DEFAULT_COLOR } from './data.js';
 
 // --- STUDY MODE STATE ---
 export let studyTopics = [];
 export let currentStudyIndex = 0;
+
+// --- UTILITY ---
+export function calculateMasteryScore() {
+    const appData = getAppData();
+    const topics = appData.topics || [];
+    if (topics.length === 0) return 0;
+
+    const maxCycles = appData.customIntervals.length;
+    let totalCycles = 0;
+    
+    topics.forEach(t => { totalCycles += t.cycle || 0; });
+
+    const maxPossible = topics.length * maxCycles;
+    
+    if (maxPossible === 0) return 0;
+    
+    return Math.round((totalCycles / maxPossible) * 100);
+}
 
 // --- TOPIC MANAGEMENT (CRUD) ---
 export function addTopic() {
@@ -35,14 +54,10 @@ export function markRevised(id, difficulty = 'medium') {
     appData.history.push({ date: new Date().toISOString().split('T')[0], title: t.topic, subject: t.subject, color: t.subjectColor });
 
     const intervals = appData.customIntervals;
-    
-    // Difficulty Multiplier
     const multiplier = difficulty === 'easy' ? 2 : difficulty === 'hard' ? 0.5 : 1;
     
-    // Increment cycle index
     t.cycle = Math.min(t.cycle + 1, intervals.length - 1);
     
-    // Calculate days to add (Base interval * Multiplier)
     const baseDays = intervals[t.cycle] || intervals[intervals.length - 1] || 30;
     const daysToAdd = Math.ceil(baseDays * multiplier); 
 
@@ -57,7 +72,7 @@ export function markRevised(id, difficulty = 'medium') {
 
 export function saveEdit() {
     const appData = getAppData();
-    const editingId = window.app.editingId; // Accessing shared ID from global scope
+    const editingId = window.app.editingId; // Accessing shared ID
     const t = appData.topics.find(x => x.id === editingId);
     if (!t) return;
 
@@ -112,7 +127,7 @@ export function showNextFlashcard() {
         document.getElementById('study-empty').style.display = 'block';
         renderAll(); return;
     }
-    // Content generation remains in render.js for consistency, but logic uses local state
+    // Content generation uses the globally exposed render module
     window.render.generateFlashcardContent(studyTopics[currentStudyIndex]);
 }
 
