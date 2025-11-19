@@ -1,4 +1,5 @@
 import { showToast } from './app.js';
+import { renderAll } from './render.js'; // Imports renderAll for restoring data
 
 // --- CONFIG & STATE ---
 const STORAGE_KEY = 'neon_focus_v9';
@@ -15,10 +16,9 @@ export function loadData() {
         topics: [], history: [], streak: 0, lastLogin: '', username: '', 
         subjectColors: {}, customIntervals: DEFAULT_INTERVALS, theme: 'neon'
     };
-    // Ensure properties exist for safety
+    // Data validation and migration safety checks
     if (!data.topics) data.topics = []; 
     if (!data.customIntervals) data.customIntervals = DEFAULT_INTERVALS;
-    // Migration for color property safety
     data.topics.forEach(t => {
         t.subjectColor = t.subjectColor || data.subjectColors[t.subject] || DEFAULT_COLOR;
     });
@@ -50,7 +50,7 @@ export function exportData() {
     a.href = URL.createObjectURL(new Blob([JSON.stringify(appData)], {type: "application/json"}));
     a.download = `neon_backup_${new Date().toISOString().split('T')[0]}.json`; 
     a.click(); 
-    app.vibrate(20);
+    window.app.vibrate(20);
 }
 
 export function importData(input) {
@@ -61,9 +61,9 @@ export function importData(input) {
             if(imported.topics) { 
                 appData = imported; 
                 saveData(); 
-                app.renderAll(); 
+                window.app.renderAll(); 
                 showToast("Data Restored Successfully!"); 
-                app.vibrate(50); 
+                window.app.vibrate(50); 
             }
         } catch(err) { 
             alert("Invalid File Format. Please ensure the file is a valid NeonFocus JSON backup."); 
@@ -72,6 +72,5 @@ export function importData(input) {
     if(input.files[0]) reader.readAsText(input.files[0]);
 }
 
-// --- PUBLIC GETTERS (to ensure other modules don't modify data directly) ---
+// --- PUBLIC GETTERS ---
 export const getAppData = () => appData;
-export const getIntervals = () => appData.customIntervals;
