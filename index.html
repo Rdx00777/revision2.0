@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NeonFocus V8 Pro</title>
+    <title>NeonFocus V8.1 Fix</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
     
@@ -92,28 +92,50 @@
         /* --- SUBJECT ITEMS & COLOR CODING --- */
         .subject-item { display: flex; flex-direction: column; gap: 8px; padding-right: 35px; }
         .subject-meta { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; }
+
         .cycle-badge {
             position: absolute; top: 0; right: 0; background: rgba(255, 255, 255, 0.1);
             color: #000; font-size: 0.7rem; font-weight: bold;
             padding: 4px 10px; border-bottom-left-radius: 12px;
         }
 
-        /* --- HISTORY TIMELINE --- */
-        .history-item {
-            display: flex; gap: 15px; padding: 15px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            align-items: center;
+        .notes-area { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); }
+        .notes-area.visible { display: block; animation: fadeIn 0.2s; }
+        textarea.notes-input {
+            width: 100%; background: rgba(0,0,0,0.3); border: none; color: #ccc; font-family: monospace;
+            font-size: 0.9rem; padding: 10px; border-radius: 8px; resize: vertical; min-height: 80px;
         }
+        .status-due { background: rgba(255, 59, 59, 0.2); color: #ff8888; border: 1px solid #ff3b3b; }
+        .status-good { background: rgba(0, 242, 255, 0.1); color: var(--text-muted); border: 1px solid rgba(255,255,255,0.1); }
+
+        /* --- STUDY MODE --- */
+        .flashcard-container { perspective: 1000px; width: 100%; height: 350px; position: relative; }
+        .flashcard {
+            position: absolute; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform 0.6s;
+            background: var(--card-glass); border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .flashcard.flipped { transform: rotateY(180deg); }
+        .card-face {
+            position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; text-align: center; padding: 30px;
+        }
+        .card-back { transform: rotateY(180deg); }
+
+        .difficulty-btns { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 20px; }
+        .difficulty-btns button { padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; border: 1px solid transparent; }
+        .difficulty-easy { background: var(--success); color: black; }
+        .difficulty-medium { background: var(--primary); color: black; }
+        .difficulty-hard { background: var(--danger); color: white; }
+        
+        /* --- HISTORY TIMELINE --- */
+        .history-item { display: flex; gap: 15px; padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.05); align-items: center; }
         .history-item:last-child { border-bottom: none; }
         .history-date {
-            font-size: 0.8rem; color: var(--text-muted);
-            min-width: 60px; text-align: right;
-            border-right: 2px solid var(--secondary);
-            padding-right: 15px;
-            line-height: 1.2;
+            font-size: 0.8rem; color: var(--text-muted); min-width: 60px; text-align: right;
+            border-right: 2px solid var(--secondary); padding-right: 15px; line-height: 1.2;
         }
 
-        /* --- FORMS, NAV, TIMER (Standard styles kept) --- */
+        /* --- FORMS, NAV, TIMER --- */
         input, select {
             width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2);
             color: white; padding: 15px; border-radius: 12px; margin-bottom: 10px;
@@ -131,10 +153,25 @@
         .nav-icon { font-size: 1.2rem; opacity: 0.5; transition: 0.3s; cursor: pointer; }
         .nav-icon.active { opacity: 1; color: var(--primary); transform: scale(1.2); }
         .timer-text { font-size: 6rem; font-weight: 300; font-variant-numeric: tabular-nums; }
-        /* ... other styles from V7.1 remain ... */
+        
+        /* Z-Index fix for Timer Overlay */
+        #timer-overlay { 
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: black; 
+            z-index: 9999; /* Increased Z-index */
+            display: flex; flex-direction: column; justify-content: center; align-items: center; 
+            opacity: 0; pointer-events: none; transition: opacity 0.3s; 
+        }
+        #timer-overlay.visible { opacity: 1; pointer-events: all; }
+        
+        #toast { visibility: hidden; min-width: 250px; background-color: #1e1e1e; color: #fff; text-align: center; border-radius: 50px; padding: 16px; position: fixed; z-index: 1000; left: 50%; bottom: 100px; transform: translateX(-50%); border: 1px solid var(--primary); }
+        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 100px; opacity: 1;} }
+        @keyframes fadeout { from {bottom: 100px; opacity: 1;} to {bottom: 0; opacity: 0;} }
     </style>
 </head>
-<body class="theme-neon"> <header>
+<body class="theme-neon">
+
+    <header>
         <div class="brand">NeonFocus</div>
         <div style="font-size:0.8rem; color:var(--text-muted)" id="header-date"></div>
     </header>
@@ -175,7 +212,7 @@
             <div id="study-controls">
                 <button class="btn-main btn-secondary" style="margin-top:20px;" onclick="flipCard()">Show Answer / Rate</button>
             </div>
-            <p id="study-empty" style="text-align:center; color:#666; padding:20px; display:none;">🎉 All done for today!</p>
+            <p id="study-empty" style="text-align:center; color:var(--text-muted); padding:20px; display:none;">🎉 All done for today!</p>
         </div>
     </section>
 
@@ -227,7 +264,7 @@
     <section id="view-history" class="view">
         <h3>Revision Timeline</h3>
         <div class="glass-card" id="history-list">
-            <p style="text-align:center; color:#555">No activity yet.</p>
+            <p style="text-align:center; color:var(--text-muted)">No activity yet.</p>
         </div>
     </section>
 
@@ -284,7 +321,7 @@
                 <button class="btn-main btn-danger" onclick="deleteTopic()">Delete</button>
                 <button class="btn-main" onclick="saveEdit()">Save</button>
             </div>
-            <button style="margin-top:10px; width:100%; background:none; border:none; color:#888;" onclick="closeModal()">Cancel</button>
+            <button style="margin-top:10px; width:100%; background:none; border:none; color:var(--text-muted);" onclick="closeModal()">Cancel</button>
         </div>
     </div>
 
@@ -298,8 +335,7 @@
 
     <script>
         // --- CONFIG & STATE ---
-        const STORAGE_KEY = 'neon_focus_v8'; // New Key
-        // Default Intervals: Used if user has not set custom intervals
+        const STORAGE_KEY = 'neon_focus_v8';
         const DEFAULT_INTERVALS = [3, 7, 14, 30, 60, 90]; 
         
         let appData = loadData();
@@ -322,7 +358,7 @@
             const raw = localStorage.getItem(STORAGE_KEY);
             let data = raw ? JSON.parse(raw) : { 
                 topics: [], history: [], streak: 0, lastLogin: '', username: '', 
-                subjectColors: {}, customIntervals: DEFAULT_INTERVALS, theme: 'neon' // New Fields
+                subjectColors: {}, customIntervals: DEFAULT_INTERVALS, theme: 'neon'
             };
             if (!data.topics) data.topics = []; 
             if (!data.customIntervals) data.customIntervals = DEFAULT_INTERVALS;
@@ -398,11 +434,9 @@
             const intervals = appData.customIntervals;
             const multiplier = difficulty === 'easy' ? 2 : difficulty === 'hard' ? 0.5 : 1;
             
-            // Increment cycle index
             t.cycle = Math.min(t.cycle + 1, intervals.length - 1);
             
-            // Calculate days to add (Base interval * Multiplier)
-            const baseDays = intervals[t.cycle] || intervals[intervals.length - 1] || 30; // Use last interval as fallback
+            const baseDays = intervals[t.cycle] || intervals[intervals.length - 1] || 30;
             const daysToAdd = Math.ceil(baseDays * multiplier); 
 
             const next = new Date(); next.setDate(next.getDate() + daysToAdd);
@@ -467,7 +501,7 @@
             sorted.forEach(t => list.appendChild(createCard(t, false)));
         }
 
-        // --- NEW: HISTORY RENDERING ---
+        // --- HISTORY RENDERING ---
         function renderHistory() {
             const list = document.getElementById('history-list');
             if(!appData.history || appData.history.length === 0) {
@@ -476,7 +510,7 @@
             }
             
             list.innerHTML = '';
-            (appData.history || []).slice().reverse().forEach(h => { // Reverse to show latest first
+            (appData.history || []).slice().reverse().forEach(h => {
                 const color = h.color || DEFAULT_COLOR;
                 const div = document.createElement('div');
                 div.className = 'history-item';
@@ -520,10 +554,12 @@
             return div;
         }
 
-
         // --- UTILS (Shared logic) ---
         function updateUsername() { appData.username = document.getElementById('inp-username').value; saveData(); }
         function switchView(view, btn) {
+            // Ensure timer is stopped before navigating
+            stopFocus(); 
+            
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.getElementById('view-' + view).classList.add('active');
             document.querySelectorAll('.nav-icon').forEach(n => n.classList.remove('active'));
@@ -561,14 +597,18 @@
             if(input.files[0]) reader.readAsText(input.files[0]);
         }
         
-        // --- EDIT/DELETE ---
+        // --- EDIT/DELETE LOGIC ---
         function openEdit(id) {
+            // FIX: Ensure timer is stopped before opening modal
+            stopFocus(); 
+
             editingId = id; const t = appData.topics.find(x => x.id === id);
             document.getElementById('edit-date').value = t.nextDate;
             document.getElementById('edit-name').value = t.topic;
             document.getElementById('edit-subject').value = t.subject;
             document.getElementById('edit-color').value = t.subjectColor || DEFAULT_COLOR;
             document.getElementById('edit-modal').classList.add('open');
+            vibrate(10);
         }
         function saveEdit() {
             const t = appData.topics.find(x => x.id === editingId);
@@ -585,9 +625,14 @@
             saveData(); renderAll(); closeModal();
         }
         function deleteTopic() { if(confirm("Delete?")) { appData.topics = appData.topics.filter(x => x.id !== editingId); saveData(); renderAll(); closeModal(); } }
-        function closeModal() { document.getElementById('edit-modal').classList.remove('open'); }
         
-        // --- HEATMAP (Uses history data) ---
+        function closeModal() { 
+            // FIX: Ensure edit modal is explicitly closed
+            document.getElementById('edit-modal').classList.remove('open');
+            vibrate(10);
+        }
+        
+        // --- HEATMAP ---
         function renderHeatmap() {
             const container = document.getElementById('heatmap'); container.innerHTML = '';
             const activityMap = {};
@@ -602,6 +647,62 @@
             }
         }
         
+        // --- TIMER & AUDIO LOGIC (Patched) ---
+        function startFocus() {
+            // FIX: Ensure modal is closed before starting timer
+            closeModal(); 
+
+            const cycleType = document.getElementById('cycle-select').value;
+            let totalMins = cycleType === '5217' ? 52 : 25;
+            let breakMins = cycleType === '5217' ? 17 : 5;
+            let secs = totalMins * 60;
+            const disp = document.getElementById('timer-display');
+            const type = document.getElementById('sound-select').value;
+            
+            document.getElementById('timer-overlay').classList.add('visible');
+            if (navigator.wakeLock) navigator.wakeLock.request('screen').catch(e=>{});
+
+            if(type !== 'silent' && SOUNDS[type]) {
+                currentAudio = new Audio(SOUNDS[type]); currentAudio.loop = true;
+                currentAudio.play().catch(e => console.log("Audio blocked"));
+            }
+
+            clearInterval(timerInt);
+            timerInt = setInterval(() => {
+                secs--;
+                const m = Math.floor(secs/60).toString().padStart(2,'0');
+                const s = (secs%60).toString().padStart(2,'0');
+                disp.innerText = `${m}:${s}`;
+                if(secs <= 0) { 
+                    clearInterval(timerInt); disp.style.color = 'var(--danger)'; vibrate([500, 200, 500]);
+                    if(currentAudio) { currentAudio.pause(); currentAudio = null; }
+                    playAlarm();
+                    setTimeout(() => alert(`Time for a ${breakMins} minute break!`), 1000);
+                }
+            }, 1000);
+            vibrate(10);
+        }
+        function stopFocus() {
+            clearInterval(timerInt);
+            document.getElementById('timer-overlay').classList.remove('visible');
+            document.getElementById('timer-display').style.color = 'white';
+            if(currentAudio) { currentAudio.pause(); currentAudio = null; }
+            if(audioCtx) { audioCtx.close(); audioCtx = null; }
+            vibrate(10);
+        }
+        function playAlarm() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.type = 'sine'; osc.frequency.setValueAtTime(800, audioCtx.currentTime); osc.start();
+            setInterval(() => {
+                if(audioCtx && audioCtx.state === 'running') {
+                    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                    setTimeout(() => gain.gain.setValueAtTime(0, audioCtx.currentTime), 200);
+                }
+            }, 600);
+        }
+
         // --- STUDY MODE LOGIC (Partial from V7.1) ---
         function loadFlashcard() {
             const today = new Date().toISOString().split('T')[0];
@@ -649,57 +750,6 @@
             markRevised(id, difficulty);
             currentStudyIndex++;
             showNextFlashcard();
-        }
-        
-        // --- TIMER & AUDIO LOGIC (Copied from V7.1) ---
-        function startFocus() {
-            const cycleType = document.getElementById('cycle-select').value;
-            let totalMins = cycleType === '5217' ? 52 : 25;
-            let breakMins = cycleType === '5217' ? 17 : 5;
-            let secs = totalMins * 60;
-            const disp = document.getElementById('timer-display');
-            const type = document.getElementById('sound-select').value;
-            
-            document.getElementById('timer-overlay').classList.add('visible');
-            if (navigator.wakeLock) navigator.wakeLock.request('screen').catch(e=>{});
-
-            if(type !== 'silent' && SOUNDS[type]) {
-                currentAudio = new Audio(SOUNDS[type]); currentAudio.loop = true;
-                currentAudio.play().catch(e => console.log("Audio blocked"));
-            }
-
-            clearInterval(timerInt);
-            timerInt = setInterval(() => {
-                secs--;
-                const m = Math.floor(secs/60).toString().padStart(2,'0');
-                const s = (secs%60).toString().padStart(2,'0');
-                disp.innerText = `${m}:${s}`;
-                if(secs <= 0) { 
-                    clearInterval(timerInt); disp.style.color = 'var(--danger)'; vibrate([500, 200, 500]);
-                    if(currentAudio) { currentAudio.pause(); currentAudio = null; }
-                    playAlarm();
-                    setTimeout(() => alert(`Time for a ${breakMins} minute break!`), 1000);
-                }
-            }, 1000);
-        }
-        function stopFocus() {
-            clearInterval(timerInt);
-            document.getElementById('timer-overlay').classList.remove('visible');
-            document.getElementById('timer-display').style.color = 'white';
-            if(currentAudio) { currentAudio.pause(); currentAudio = null; }
-            if(audioCtx) { audioCtx.close(); audioCtx = null; }
-        }
-        function playAlarm() {
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-            osc.connect(gain); gain.connect(audioCtx.destination);
-            osc.type = 'sine'; osc.frequency.setValueAtTime(800, audioCtx.currentTime); osc.start();
-            setInterval(() => {
-                if(audioCtx && audioCtx.state === 'running') {
-                    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                    setTimeout(() => gain.gain.setValueAtTime(0, audioCtx.currentTime), 200);
-                }
-            }, 600);
         }
     </script>
 </body>
