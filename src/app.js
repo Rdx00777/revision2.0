@@ -1,4 +1,4 @@
-import { saveData, checkStreak, getAppData } from './data.js';
+import { saveData, checkStreak } from './data.js';
 import { stopFocus } from './timer.js';
 import { renderAll } from './render.js';
 import { loadFlashcard } from './logic.js';
@@ -31,24 +31,34 @@ export function initialize() {
 }
 
 // --- NAVIGATION ---
-export function switchView(view, btn) {
+export function switchView(viewId, btn) {
     // Ensure timer and modals are stopped before navigating
     stopFocus(); 
     closeModal(); 
     
-    // Switch active view
+    // 1. Hide ALL views and show the targeted view
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-    document.getElementById('view-' + view).classList.add('active');
     
-    // Switch active nav icon
+    // Use the complete viewId directly (e.g., 'view-dashboard')
+    const targetView = document.getElementById(viewId);
+
+    if (targetView) {
+        targetView.classList.add('active');
+    } else {
+        console.error(`View ID not found: ${viewId}`);
+        showToast(`Error: Section not found.`);
+        return;
+    }
+
+    // 2. Switch active nav icon
     document.querySelectorAll('.nav-icon').forEach(n => n.classList.remove('active'));
     btn.classList.add('active'); 
     
     vibrate(10);
     
-    // Special logic for study mode
-    if(view === 'study') loadFlashcard();
+    // 3. Special logic for study mode
+    if(viewId === 'view-study') loadFlashcard();
 }
 
 // Re-export rendering function for ease of use in logic.js
-export { renderAll } from './render.js'; 
+export { renderAll } from './render.js';
