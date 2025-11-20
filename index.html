@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NeonFocus V10.2</title>
+    <title>NeonFocus V10.3 Stable</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
     
@@ -81,21 +81,18 @@
         .btn-icon { background: none; border: none; cursor: pointer; font-size: 1.2rem; opacity: 0.8; padding: 5px; }
         .btn-revised { background: var(--primary); color: black; border: none; padding: 8px 16px; border-radius: 20px; font-weight: bold; font-size: 0.8rem; }
 
-        /* --- MODAL FIX (NUCLEAR OPTION) --- */
+        /* --- MODAL (NUCLEAR FIX) --- */
         .modal {
-            display: none; /* Hidden by default - Guaranteed */
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.95); 
-            z-index: 5000; /* Super high z-index */
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.95); z-index: 5000;
             justify-content: center; align-items: center;
         }
-        .modal.open { display: flex !important; } /* Force show when class is added */
+        .modal.open { display: flex !important; }
         .modal-content { width: 85%; max-width: 350px; max-height: 90vh; overflow-y: auto; }
 
         /* --- TIMER OVERLAY --- */
         #timer-overlay { 
-            display: none;
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: black; 
+            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: black; 
             z-index: 9999; justify-content: center; align-items: center; flex-direction: column; 
         }
         #timer-overlay.visible { display: flex !important; }
@@ -214,8 +211,8 @@
         <div class="glass-card">
             <button class="btn-main" style="background:#333;" onclick="exportData()">Backup Data</button>
             <div style="position:relative; margin-top:10px;">
-                <button class="btn-main" style="background:#333;">Restore Data</button>
-                <input type="file" onchange="importData(this)" style="position:absolute; top:0; left:0; opacity:0; height:100%;">
+                <button class="btn-main" style="background:#333;">Restore Data (Tap Here)</button>
+                <input type="file" id="file-upload" onchange="importData(this)" style="position:absolute; top:0; left:0; opacity:0; width:100%; height:100%; cursor:pointer;">
             </div>
         </div>
     </section>
@@ -279,14 +276,15 @@
 
     <script>
         /* --- DATA & CONFIG --- */
-        const STORAGE_KEY = 'neon_v10_2';
+        const MASTER_KEY = 'neon_focus_master_v1'; // PERMANENT KEY
+        const OLD_KEYS = ['neon_v10_2', 'neon_focus_v9_1', 'neon_focus_v9', 'neon_focus_v8']; // Keys to migrate from
         const DEFAULT_INTERVALS = [3, 7, 14, 30, 60];
         const SOUNDS = {
             rain: 'https://actions.google.com/sounds/v1/weather/rain_heavy_loud.ogg',
             forest: 'https://actions.google.com/sounds/v1/ambiences/forest_morning.ogg'
         };
         
-        let appData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
+        let appData = {
             topics: [], history: [], streak: 0, lastLogin: '', 
             customIntervals: DEFAULT_INTERVALS, theme: 'neon', subjectColors: {}
         };
@@ -294,17 +292,46 @@
         let timerInt, audioCtx, currentAudio, editingId;
         let studyTopics = [], currentStudyIndex = 0;
 
-        /* --- INIT --- */
+        /* --- INIT & MIGRATION --- */
         function init() {
+            // 1. Try load Master Data
+            let raw = localStorage.getItem(MASTER_KEY);
+            
+            if (raw) {
+                appData = JSON.parse(raw);
+            } else {
+                // 2. If Master missing, try migrate from Old Keys
+                migrateData();
+            }
+
+            // 3. Render
             document.getElementById('header-date').innerText = new Date().toLocaleDateString();
             if(appData.username) document.getElementById('inp-username').value = appData.username;
             if(appData.customIntervals) document.getElementById('inp-intervals').value = appData.customIntervals.join(', ');
-            document.body.className = `theme-${appData.theme}`;
+            document.body.className = `theme-${appData.theme || 'neon'}`;
             checkStreak();
             renderAll();
         }
 
-        function saveData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); }
+        function migrateData() {
+            for (let key of OLD_KEYS) {
+                let old = localStorage.getItem(key);
+                if (old) {
+                    try {
+                        console.log("Migrating data from: " + key);
+                        let parsed = JSON.parse(old);
+                        if(parsed.topics && parsed.topics.length > 0) {
+                            appData = parsed;
+                            saveData(); // Save to MASTER_KEY
+                            showToast("Data Migrated Successfully!");
+                            return; // Stop after first successful find
+                        }
+                    } catch(e) { console.error("Migration error", e); }
+                }
+            }
+        }
+
+        function saveData() { localStorage.setItem(MASTER_KEY, JSON.stringify(appData)); }
 
         /* --- NAVIGATION & UI --- */
         function switchView(viewId, btn) {
@@ -326,6 +353,44 @@
             let t = document.getElementById('toast');
             t.innerText = msg; t.className = 'show';
             setTimeout(() => t.className = '', 3000);
+        }
+
+        /* --- BACKUP & RESTORE (FIXED) --- */
+        function exportData() {
+            let dataStr = JSON.stringify(appData);
+            let dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            let exportFileDefaultName = 'neon_backup_' + new Date().toISOString().slice(0,10) + '.json';
+            
+            let linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+            showToast("Backup Downloaded");
+        }
+
+        function importData(input) {
+            let file = input.files[0];
+            if (!file) return;
+            
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    let imported = JSON.parse(e.target.result);
+                    if (imported && imported.topics) {
+                        appData = imported;
+                        saveData();
+                        renderAll();
+                        showToast("Data Restored!");
+                    } else {
+                        alert("Invalid Backup File");
+                    }
+                } catch (err) {
+                    alert("Error reading file");
+                }
+            };
+            reader.readAsText(file);
+            input.value = ''; // Reset input
         }
 
         /* --- CORE LOGIC --- */
@@ -354,12 +419,11 @@
             if(!appData.history) appData.history = [];
             appData.history.push({date: new Date().toISOString().split('T')[0], title: t.topic, subject: t.subject, color: t.subjectColor});
 
-            // SRS Logic FIXED: Use interval of CURRENT cycle
+            // SRS Logic - Uses current cycle index
             let intervals = appData.customIntervals || DEFAULT_INTERVALS;
-            let days = intervals[t.cycle] || intervals[intervals.length - 1]; // If cycle exceeds array, use last max interval
+            let days = intervals[t.cycle] || intervals[intervals.length - 1]; 
             
-            // Increment Cycle
-            t.cycle = Math.min(t.cycle + 1, intervals.length); // Allow going one past max for "mastered" state if desired, but keeping simple cap
+            t.cycle = Math.min(t.cycle + 1, intervals.length);
             
             let next = new Date(); next.setDate(next.getDate() + days);
             t.nextDate = next.toISOString().split('T')[0];
