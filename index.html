@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NeonFocus V10.3 Stable</title>
+    <title>NeonFocus V10.4</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
     
@@ -61,10 +61,21 @@
             background: var(--card-glass); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 16px; padding: 20px; margin-bottom: 15px; position: relative;
         }
-        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .big-number { font-size: 2.5rem; color: var(--primary); }
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; align-items: center; }
+        .big-number { font-size: 2.5rem; color: var(--primary); line-height: 1; }
         .stat-label { color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; }
-        .mastery-score { position: absolute; top: 15px; right: 20px; font-size: 1.8rem; font-weight: 700; background: linear-gradient(45deg, var(--secondary), var(--primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        /* Fixed Mastery Score Layout */
+        .mastery-container { 
+            display: flex; flex-direction: column; align-items: flex-end; 
+            justify-content: center; height: 100%;
+        }
+        .mastery-val { 
+            font-size: 2.5rem; font-weight: 700; 
+            background: linear-gradient(45deg, var(--secondary), var(--primary));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            line-height: 1;
+        }
 
         /* --- LIST ITEMS --- */
         .subject-item { display: flex; flex-direction: column; gap: 8px; padding-right: 35px; }
@@ -81,7 +92,7 @@
         .btn-icon { background: none; border: none; cursor: pointer; font-size: 1.2rem; opacity: 0.8; padding: 5px; }
         .btn-revised { background: var(--primary); color: black; border: none; padding: 8px 16px; border-radius: 20px; font-weight: bold; font-size: 0.8rem; }
 
-        /* --- MODAL (NUCLEAR FIX) --- */
+        /* --- MODAL --- */
         .modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.95); z-index: 5000;
@@ -110,8 +121,8 @@
         /* --- EXTRAS --- */
         .notes-area { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); }
         .notes-area.visible { display: block; }
-        .heatmap-container { display: flex; gap: 3px; flex-wrap: wrap; justify-content: center; padding: 10px 0; }
-        .heat-day { width: 10px; height: 10px; border-radius: 2px; background: rgba(255,255,255,0.1); }
+        .heatmap-container { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; padding: 10px 0; }
+        .heat-day { width: 12px; height: 12px; border-radius: 3px; background: rgba(255,255,255,0.1); cursor: pointer; }
         .heat-1 { background: rgba(0, 242, 255, 0.3); } 
         .heat-2 { background: rgba(0, 242, 255, 0.6); }
         .heat-3 { background: rgba(0, 242, 255, 1.0); }
@@ -140,10 +151,13 @@
 
     <section id="view-dashboard" class="view active">
         <div class="glass-card">
-            <span class="mastery-score" id="mastery-score">--%</span>
-            <div class="stat-grid">
-                <div><div class="big-number" id="due-count">0</div><div class="stat-label">Due Today</div></div>
-                <div><div class="big-number" id="streak-count">🔥 0</div><div class="stat-label">Day Streak</div></div>
+            <div class="stat-grid" style="grid-template-columns: 1fr 1fr 1fr;">
+                <div><div class="big-number" id="due-count">0</div><div class="stat-label">Due</div></div>
+                <div><div class="big-number" id="streak-count">🔥 0</div><div class="stat-label">Streak</div></div>
+                <div class="mastery-container">
+                    <div class="mastery-val" id="mastery-score">0%</div>
+                    <div class="stat-label">Mastery</div>
+                </div>
             </div>
         </div>
         <h3>Priorities</h3>
@@ -192,7 +206,7 @@
         <h3>Profile</h3>
         <div class="glass-card">
             <input type="text" id="inp-username" placeholder="Username" onchange="updateUsername()" style="font-size:1.5rem; border:none; border-bottom:1px solid #555;">
-            <div class="stat-label" style="margin-top:10px;">Activity (90 Days)</div>
+            <div class="stat-label" style="margin-top:10px;">Activity (Tap square to view history)</div>
             <div class="heatmap-container" id="heatmap"></div>
         </div>
         <h3>Settings</h3>
@@ -212,14 +226,15 @@
             <button class="btn-main" style="background:#333;" onclick="exportData()">Backup Data</button>
             <div style="position:relative; margin-top:10px;">
                 <button class="btn-main" style="background:#333;">Restore Data (Tap Here)</button>
-                <input type="file" id="file-upload" onchange="importData(this)" style="position:absolute; top:0; left:0; opacity:0; width:100%; height:100%; cursor:pointer;">
+                <input type="file" onchange="importData(this)" style="position:absolute; top:0; left:0; opacity:0; height:100%;">
             </div>
         </div>
     </section>
 
     <section id="view-history" class="view">
-        <h3>History</h3>
+        <h3 id="history-title">History</h3>
         <div class="glass-card" id="history-list"></div>
+        <button class="btn-main" style="background:transparent; border:1px solid #555; margin-top:20px;" onclick="renderHistory()">Show All History</button>
     </section>
 
     <section id="view-timer" class="view">
@@ -231,6 +246,7 @@
                 <option value="silent">🔕 Silence</option>
                 <option value="rain">🌧️ Rain</option>
                 <option value="forest">🐦 Forest</option>
+                <option value="waves">🌊 Waves</option>
             </select>
             <button class="btn-main" style="margin-top:20px;" onclick="startFocus()">Start Timer</button>
         </div>
@@ -276,15 +292,16 @@
 
     <script>
         /* --- DATA & CONFIG --- */
-        const MASTER_KEY = 'neon_focus_master_v1'; // PERMANENT KEY
-        const OLD_KEYS = ['neon_v10_2', 'neon_focus_v9_1', 'neon_focus_v9', 'neon_focus_v8']; // Keys to migrate from
+        const STORAGE_KEY = 'neon_focus_master_v1';
         const DEFAULT_INTERVALS = [3, 7, 14, 30, 60];
+        // New Audio URLs (Reliable CDN)
         const SOUNDS = {
-            rain: 'https://actions.google.com/sounds/v1/weather/rain_heavy_loud.ogg',
-            forest: 'https://actions.google.com/sounds/v1/ambiences/forest_morning.ogg'
+            rain: 'https://cdn.pixabay.com/audio/2022/05/18/audio_315a609355.mp3',
+            forest: 'https://cdn.pixabay.com/audio/2021/09/06/audio_007933d4c6.mp3',
+            waves: 'https://cdn.pixabay.com/audio/2022/01/18/audio_d21678a542.mp3'
         };
         
-        let appData = {
+        let appData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
             topics: [], history: [], streak: 0, lastLogin: '', 
             customIntervals: DEFAULT_INTERVALS, theme: 'neon', subjectColors: {}
         };
@@ -292,19 +309,8 @@
         let timerInt, audioCtx, currentAudio, editingId;
         let studyTopics = [], currentStudyIndex = 0;
 
-        /* --- INIT & MIGRATION --- */
+        /* --- INIT --- */
         function init() {
-            // 1. Try load Master Data
-            let raw = localStorage.getItem(MASTER_KEY);
-            
-            if (raw) {
-                appData = JSON.parse(raw);
-            } else {
-                // 2. If Master missing, try migrate from Old Keys
-                migrateData();
-            }
-
-            // 3. Render
             document.getElementById('header-date').innerText = new Date().toLocaleDateString();
             if(appData.username) document.getElementById('inp-username').value = appData.username;
             if(appData.customIntervals) document.getElementById('inp-intervals').value = appData.customIntervals.join(', ');
@@ -313,34 +319,18 @@
             renderAll();
         }
 
-        function migrateData() {
-            for (let key of OLD_KEYS) {
-                let old = localStorage.getItem(key);
-                if (old) {
-                    try {
-                        console.log("Migrating data from: " + key);
-                        let parsed = JSON.parse(old);
-                        if(parsed.topics && parsed.topics.length > 0) {
-                            appData = parsed;
-                            saveData(); // Save to MASTER_KEY
-                            showToast("Data Migrated Successfully!");
-                            return; // Stop after first successful find
-                        }
-                    } catch(e) { console.error("Migration error", e); }
-                }
-            }
-        }
-
-        function saveData() { localStorage.setItem(MASTER_KEY, JSON.stringify(appData)); }
+        function saveData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); }
 
         /* --- NAVIGATION & UI --- */
         function switchView(viewId, btn) {
             stopFocus();
-            closeModal(); // Safety close
+            closeModal();
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.getElementById(viewId).classList.add('active');
-            document.querySelectorAll('.nav-icon').forEach(n => n.classList.remove('active'));
-            btn.classList.add('active');
+            if(btn) {
+                document.querySelectorAll('.nav-icon').forEach(n => n.classList.remove('active'));
+                btn.classList.add('active');
+            }
             if(viewId === 'view-study') loadFlashcard();
         }
 
@@ -353,44 +343,6 @@
             let t = document.getElementById('toast');
             t.innerText = msg; t.className = 'show';
             setTimeout(() => t.className = '', 3000);
-        }
-
-        /* --- BACKUP & RESTORE (FIXED) --- */
-        function exportData() {
-            let dataStr = JSON.stringify(appData);
-            let dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-            
-            let exportFileDefaultName = 'neon_backup_' + new Date().toISOString().slice(0,10) + '.json';
-            
-            let linkElement = document.createElement('a');
-            linkElement.setAttribute('href', dataUri);
-            linkElement.setAttribute('download', exportFileDefaultName);
-            linkElement.click();
-            showToast("Backup Downloaded");
-        }
-
-        function importData(input) {
-            let file = input.files[0];
-            if (!file) return;
-            
-            let reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    let imported = JSON.parse(e.target.result);
-                    if (imported && imported.topics) {
-                        appData = imported;
-                        saveData();
-                        renderAll();
-                        showToast("Data Restored!");
-                    } else {
-                        alert("Invalid Backup File");
-                    }
-                } catch (err) {
-                    alert("Error reading file");
-                }
-            };
-            reader.readAsText(file);
-            input.value = ''; // Reset input
         }
 
         /* --- CORE LOGIC --- */
@@ -415,14 +367,11 @@
             let t = appData.topics.find(x => x.id === id);
             if(!t) return;
             
-            // History
             if(!appData.history) appData.history = [];
             appData.history.push({date: new Date().toISOString().split('T')[0], title: t.topic, subject: t.subject, color: t.subjectColor});
 
-            // SRS Logic - Uses current cycle index
             let intervals = appData.customIntervals || DEFAULT_INTERVALS;
             let days = intervals[t.cycle] || intervals[intervals.length - 1]; 
-            
             t.cycle = Math.min(t.cycle + 1, intervals.length);
             
             let next = new Date(); next.setDate(next.getDate() + days);
@@ -505,8 +454,11 @@
             document.getElementById('due-count').innerText = due.length;
             document.getElementById('streak-count').innerText = `🔥 ${appData.streak}`;
             
-            if(due.length === 0) list.innerHTML = '<div style="text-align:center; padding:20px; color:#888">All caught up!</div>';
+            // Fix Mastery Score (No more --%)
+            let mastery = calculateMasteryScore();
+            document.getElementById('mastery-score').innerText = `${mastery}%`;
             
+            if(due.length === 0) list.innerHTML = '<div style="text-align:center; padding:20px; color:#888">All caught up!</div>';
             due.forEach(t => list.appendChild(createCardHTML(t, true)));
         }
 
@@ -546,9 +498,23 @@
             if(t) { t.notes = val; saveData(); }
         }
 
-        function renderHistory() {
+        /* --- INTERACTIVE HISTORY --- */
+        function renderHistory(filterDate = null) {
             let list = document.getElementById('history-list'); list.innerHTML = '';
-            (appData.history || []).slice().reverse().slice(0, 20).forEach(h => {
+            let title = document.getElementById('history-title');
+            
+            let source = appData.history || [];
+            if(filterDate) {
+                source = source.filter(h => h.date === filterDate);
+                title.innerText = `History: ${filterDate}`;
+            } else {
+                title.innerText = "History (Recent)";
+                source = source.slice().reverse().slice(0, 20);
+            }
+
+            if(source.length === 0) { list.innerHTML = '<p style="text-align:center; color:gray;">No history found.</p>'; return; }
+
+            source.forEach(h => {
                 let d = document.createElement('div');
                 d.className = 'history-item';
                 d.innerHTML = `<div class="history-date" style="border-color:${h.color}">${h.date}</div><div><b>${h.title}</b></div>`;
@@ -560,17 +526,32 @@
             let c = document.getElementById('heatmap'); c.innerHTML = '';
             let map = {};
             (appData.history || []).forEach(h => map[h.date] = (map[h.date]||0)+1);
+            
             for(let i=89; i>=0; i--) {
                 let d = new Date(); d.setDate(d.getDate()-i);
                 let key = d.toISOString().split('T')[0];
                 let v = map[key] || 0;
                 let div = document.createElement('div');
                 div.className = `heat-day heat-${v>4?3:v>1?2:v>0?1:0}`;
+                // Add click handler for filtering
+                div.onclick = () => {
+                    switchView('view-history', document.querySelectorAll('.nav-icon')[3]);
+                    renderHistory(key);
+                };
                 c.appendChild(div);
             }
         }
 
-        /* --- UTILS --- */
+        /* --- UTILS & EXPORT --- */
+        function calculateMasteryScore() {
+            let topics = appData.topics || [];
+            if(topics.length === 0) return 0;
+            let maxCycles = (appData.customIntervals || DEFAULT_INTERVALS).length;
+            let total = topics.reduce((acc, t) => acc + (t.cycle || 0), 0);
+            let max = topics.length * maxCycles;
+            return max === 0 ? 0 : Math.round((total/max)*100);
+        }
+
         function checkStreak() {
             let today = new Date().toDateString();
             if(appData.lastLogin !== today) {
@@ -587,6 +568,19 @@
         }
         function updateUsername() { appData.username = document.getElementById('inp-username').value; saveData(); }
 
+        function exportData() {
+            let a = document.createElement('a'); 
+            a.href = URL.createObjectURL(new Blob([JSON.stringify(appData)], {type: "application/json"}));
+            a.download = `neon_backup.json`; a.click();
+        }
+        function importData(input) {
+            let r = new FileReader();
+            r.onload = e => {
+                try { appData = JSON.parse(e.target.result); saveData(); renderAll(); showToast("Restored"); } catch(e){alert("Error");}
+            };
+            r.readAsText(input.files[0]);
+        }
+
         /* --- TIMER --- */
         function startFocus() {
             let mins = document.getElementById('timer-input').value;
@@ -598,7 +592,8 @@
             
             if(sound !== 'silent' && SOUNDS[sound]) {
                 currentAudio = new Audio(SOUNDS[sound]);
-                currentAudio.loop = true; currentAudio.play();
+                currentAudio.loop = true; 
+                currentAudio.play().catch(e => console.log("Audio blocked, user interaction needed first"));
             }
 
             timerInt = setInterval(() => {
