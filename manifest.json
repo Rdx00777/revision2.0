@@ -1,18 +1,19 @@
 {
-    "name": "NeonFocus PWA V10 Stable",
-    "short_name": "FocusV10",
+    "name": "NeonFocus V10.5",
+    "short_name": "NeonFocus",
     "start_url": "index.html",
     "display": "standalone",
     "background_color": "#050505",
-    "theme_color": "#050505", 
+    "theme_color": "#050505",
+    "orientation": "portrait",
     "icons": [
         {
-            "src": "icon-192.png", 
+            "src": "https://via.placeholder.com/192/00f2ff/000000?text=NF",
             "sizes": "192x192",
             "type": "image/png"
         },
         {
-            "src": "icon-512.png", 
+            "src": "https://via.placeholder.com/512/00f2ff/000000?text=NF",
             "sizes": "512x512",
             "type": "image/png"
         }
