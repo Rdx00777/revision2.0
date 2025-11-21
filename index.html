@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NeonFocus V10.5</title>
+    <title>NeonFocus V10.6 Nature</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
     
@@ -65,7 +65,6 @@
         .big-number { font-size: 2.5rem; color: var(--primary); line-height: 1; }
         .stat-label { color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; margin-top: 5px; }
         
-        /* Mastery Layout */
         .mastery-container { display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .mastery-val { 
             font-size: 1.8rem; font-weight: 700; 
@@ -178,9 +177,9 @@
                     <div id="card-back" class="card-face card-back">
                         <div style="font-size:1.2rem; margin-bottom:20px;">Rate Your Recall</div>
                         <div class="difficulty-btns">
-                            <button style="background:var(--success); color:black;" onclick="markRecallResult('easy')">Easy</button>
-                            <button style="background:var(--primary); color:black;" onclick="markRecallResult('medium')">Good</button>
-                            <button style="background:var(--danger); color:white;" onclick="markRecallResult('hard')">Hard</button>
+                            <button style="background:var(--success); color:black;" onclick="markRecallResult('easy')">Easy (x2)</button>
+                            <button style="background:var(--primary); color:black;" onclick="markRecallResult('medium')">Good (x1)</button>
+                            <button style="background:var(--danger); color:white;" onclick="markRecallResult('hard')">Hard (x0.5)</button>
                         </div>
                     </div>
                 </div>
@@ -238,9 +237,10 @@
             <div class="stat-label">MINUTES</div>
             <select id="sound-select" style="margin-top:20px;">
                 <option value="silent">🔕 Silence</option>
-                <option value="pink">🌧️ Rain (Pink Noise)</option>
-                <option value="brown">⛰️ Deep (Brown Noise)</option>
-                <option value="white">🌫️ Static (White Noise)</option>
+                <option value="rain">🌧️ Rain (Storm)</option>
+                <option value="forest">🐦 Forest (Nature)</option>
+                <option value="waves">🌊 Waves (Ocean)</option>
+                <option value="fire">🔥 Fire (Cozy)</option>
             </select>
             <button class="btn-main" style="margin-top:20px;" onclick="startFocus()">Start Timer</button>
         </div>
@@ -296,12 +296,20 @@
         const STORAGE_KEY = 'neon_focus_master_v1';
         const DEFAULT_INTERVALS = [3, 7, 14, 30, 60];
         
+        // RELIABLE AUDIO SOURCES (CDN)
+        const SOUNDS = {
+            rain: 'https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c8a73467.mp3', // Rain
+            forest: 'https://cdn.pixabay.com/download/audio/2021/09/06/audio_007933d4c6.mp3', // Birds
+            waves: 'https://cdn.pixabay.com/download/audio/2022/01/18/audio_d21678a542.mp3', // Waves
+            fire: 'https://cdn.pixabay.com/download/audio/2022/01/18/audio_8096830c06.mp3' // Fire
+        };
+        
         let appData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
             topics: [], history: [], streak: 0, lastLogin: '', 
             customIntervals: DEFAULT_INTERVALS, theme: 'neon', subjectColors: {}
         };
 
-        let timerInt, audioCtx, noiseNode, editingId;
+        let timerInt, currentAudio, editingId;
         let studyTopics = [], currentStudyIndex = 0;
 
         /* --- INIT --- */
@@ -491,7 +499,7 @@
             if(t) { t.notes = val; saveData(); }
         }
 
-        /* --- HISTORY & HEATMAP --- */
+        /* --- HEATMAP & HISTORY --- */
         function renderHeatmap() {
             let c = document.getElementById('heatmap'); c.innerHTML = '';
             let map = {};
@@ -513,14 +521,13 @@
             document.getElementById('history-modal-title').innerText = `Activity: ${date}`;
             
             let acts = (appData.history || []).filter(h => h.date === date);
-            
             if(acts.length === 0) {
-                list.innerHTML = '<div style="color:#888; text-align:center;">No activity recorded.</div>';
+                list.innerHTML = '<div style="text-align:center; color:gray; padding:20px;">No activity.</div>';
             } else {
                 acts.forEach(h => {
                     let d = document.createElement('div');
                     d.className = 'history-item';
-                    d.innerHTML = `<div class="history-date" style="border-color:${h.color}">${h.subject}</div><div><b>${h.title}</b></div>`;
+                    d.innerHTML = `<div class="history-date" style="border-color:${h.color}">${h.subject}</div><div>${h.title}</div>`;
                     list.appendChild(d);
                 });
             }
@@ -532,14 +539,6 @@
         }
 
         /* --- UTILS --- */
-        function checkStreak() {
-            let today = new Date().toDateString();
-            if(appData.lastLogin !== today) {
-                let y = new Date(); y.setDate(y.getDate()-1);
-                if(appData.lastLogin === y.toDateString()) appData.streak++; else appData.streak=1;
-                appData.lastLogin = today; saveData();
-            }
-        }
         function calculateMasteryScore() {
             let topics = appData.topics || [];
             if(topics.length === 0) return 0;
@@ -547,6 +546,15 @@
             let total = topics.reduce((acc, t) => acc + (t.cycle || 0), 0);
             let max = topics.length * maxCycles;
             return max === 0 ? 0 : Math.round((total/max)*100);
+        }
+
+        function checkStreak() {
+            let today = new Date().toDateString();
+            if(appData.lastLogin !== today) {
+                let y = new Date(); y.setDate(y.getDate()-1);
+                if(appData.lastLogin === y.toDateString()) appData.streak++; else appData.streak=1;
+                appData.lastLogin = today; saveData();
+            }
         }
         
         function switchTheme(t) { document.body.className = `theme-${t}`; appData.theme=t; saveData(); }
@@ -569,43 +577,6 @@
             r.readAsText(input.files[0]);
         }
 
-        /* --- AUDIO GENERATOR (NO EXTERNAL FILES) --- */
-        function createNoise(type) {
-            let bufferSize = 2 * audioCtx.sampleRate;
-            let buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-            let output = buffer.getChannelData(0);
-            let lastOut = 0;
-
-            for (let i = 0; i < bufferSize; i++) {
-                let white = Math.random() * 2 - 1;
-                if(type === 'brown') {
-                    output[i] = (lastOut + (0.02 * white)) / 1.02;
-                    lastOut = output[i];
-                    output[i] *= 3.5; 
-                } else if (type === 'pink') {
-                    let b0, b1, b2, b3, b4, b5, b6; 
-                    b0 = b1 = b2 = b3 = b4 = b5 = b6 = 0.0;
-                    b0 = 0.99886 * b0 + white * 0.0555179;
-                    b1 = 0.99332 * b1 + white * 0.0750759;
-                    b2 = 0.96900 * b2 + white * 0.1538520;
-                    b3 = 0.86650 * b3 + white * 0.3104856;
-                    b4 = 0.55000 * b4 + white * 0.5329522;
-                    b5 = -0.7616 * b5 - white * 0.0168980;
-                    output[i] = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362;
-                    output[i] *= 0.11; 
-                    b6 = white * 0.115926;
-                } else {
-                    output[i] = white * 0.1; // White noise
-                }
-            }
-            
-            let noise = audioCtx.createBufferSource();
-            noise.buffer = buffer;
-            noise.loop = true;
-            noise.connect(audioCtx.destination);
-            return noise;
-        }
-
         /* --- TIMER --- */
         function startFocus() {
             let mins = document.getElementById('timer-input').value;
@@ -615,11 +586,10 @@
             document.getElementById('timer-overlay').classList.add('visible');
             if(navigator.wakeLock) navigator.wakeLock.request('screen');
             
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            if(sound !== 'silent') {
-                if(noiseNode) noiseNode.stop();
-                noiseNode = createNoise(sound);
-                noiseNode.start();
+            if(sound !== 'silent' && SOUNDS[sound]) {
+                currentAudio = new Audio(SOUNDS[sound]);
+                currentAudio.loop = true; 
+                currentAudio.play().catch(e => console.log("Audio blocked"));
             }
 
             timerInt = setInterval(() => {
@@ -633,7 +603,7 @@
 
         function stopFocus() {
             clearInterval(timerInt);
-            if(noiseNode) { noiseNode.stop(); noiseNode = null; }
+            if(currentAudio) { currentAudio.pause(); currentAudio = null; }
             document.getElementById('timer-overlay').classList.remove('visible');
         }
 
