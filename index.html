@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NeonFocus V11.1 Fixed</title>
+    <title>NeonFocus V11.2 Rescue</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
     
     <style>
+        /* --- THEME VARIABLES --- */
         :root {
             --bg-dark: #050505;
             --card-glass: rgba(255, 255, 255, 0.06);
@@ -116,13 +117,18 @@
 
         .notes-area { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); }
         .notes-area.visible { display: block; }
-        .heatmap-container { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; padding: 10px 0; }
-        .heat-day { width: 12px; height: 12px; border-radius: 3px; background: rgba(255,255,255,0.1); cursor: pointer; }
+        
+        /* FIXED HEATMAP CSS */
+        .heatmap-container { 
+            display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; padding: 10px 0; 
+            min-height: 50px; /* Ensure it takes space even if empty */
+        }
+        .heat-day { width: 12px; height: 12px; border-radius: 3px; background: rgba(255,255,255,0.1); cursor: pointer; transition: transform 0.1s; }
+        .heat-day:active { transform: scale(1.3); }
         .heat-1 { background: rgba(0, 242, 255, 0.3); } 
         .heat-2 { background: rgba(0, 242, 255, 0.6); }
         .heat-3 { background: rgba(0, 242, 255, 1.0); }
         
-        /* History Modal Items */
         .history-item { display: flex; gap: 15px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1); align-items: center; }
         .history-date { font-size: 0.8rem; color: var(--text-muted); min-width: 50px; text-align: right; border-right: 2px solid var(--secondary); padding-right: 10px; }
 
@@ -230,6 +236,11 @@
             <div class="stat-label" style="margin-top:10px;">Activity (Tap square to view history)</div>
             <div class="heatmap-container" id="heatmap"></div>
         </div>
+        <h3>Data Recovery</h3>
+        <div class="glass-card">
+            <button class="btn-main" style="background:var(--primary); color:black;" onclick="forceMigration()">🔍 Find Lost Data</button>
+            <div style="margin-top:10px; font-size:0.8rem; color:#888;">Use this if your data disappeared after update.</div>
+        </div>
         <h3>Settings</h3>
         <div class="glass-card">
             <div class="stat-label">Theme</div>
@@ -314,49 +325,59 @@
     </nav>
 
     <script>
-        const STORAGE_KEY = 'neon_focus_ultimate_v1'; 
-        const OLD_KEYS = ['neon_focus_master_v11', 'neon_focus_master_v1', 'neon_v10_2', 'neon_focus_v9'];
+        /* --- DATA & CONFIG --- */
+        // RESTORED KEY TO MATCH OLDER VERSIONS FOR DATA RECOVERY
+        const STORAGE_KEY = 'neon_focus_master_v1'; 
+        const MIGRATION_KEYS = ['neon_focus_ultimate_v1', 'neon_v10_2', 'neon_focus_v9', 'neon_focus_v8'];
         const DEFAULT_INTERVALS = [3, 7, 14, 30, 60];
         
         let appData = { topics: [], history: [], tasks: [], streak: 0, lastLogin: '', customIntervals: DEFAULT_INTERVALS, theme: 'neon', subjectColors: {} };
         let timerInt, currentAudioEl, editingId, studyTopics = [], currentStudyIndex = 0;
 
+        /* --- INIT --- */
         function init() {
-            // Data Recovery Logic
             let raw = localStorage.getItem(STORAGE_KEY);
             if (raw) {
-                appData = JSON.parse(raw);
-            } else {
-                // Auto-migrate from ANY old version to restore data
-                for(let k of OLD_KEYS) {
-                    let old = localStorage.getItem(k);
-                    if(old) {
-                        try { 
-                            let parsed = JSON.parse(old);
-                            if(parsed.topics && parsed.topics.length > 0) {
-                                appData = parsed;
-                                saveData(); // Save to new key
-                                showToast("Data Restored!");
-                                break;
-                            }
-                        } catch(e){}
-                    }
-                }
+                try {
+                    appData = JSON.parse(raw);
+                    if(!appData.tasks) appData.tasks = []; // Safely add tasks if missing
+                } catch(e) { console.error("Data Corrupt"); }
             }
-            
-            // Validation
-            if(!appData.tasks) appData.tasks = [];
             
             document.getElementById('header-date').innerText = new Date().toLocaleDateString();
             if(appData.username) document.getElementById('inp-username').value = appData.username;
             if(appData.customIntervals) document.getElementById('inp-intervals').value = appData.customIntervals.join(', ');
             document.body.className = `theme-${appData.theme || 'neon'}`;
+            
             checkStreak();
             renderAll();
         }
 
         function saveData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); }
 
+        /* --- DATA RECOVERY --- */
+        function forceMigration() {
+            let found = false;
+            for(let key of MIGRATION_KEYS) {
+                let old = localStorage.getItem(key);
+                if(old) {
+                    try {
+                        let parsed = JSON.parse(old);
+                        if(parsed.topics && parsed.topics.length > 0) {
+                            appData = parsed;
+                            saveData();
+                            renderAll();
+                            showToast(`Recovered from ${key}`);
+                            found = true;
+                            break;
+                        }
+                    } catch(e){}
+                }
+            }
+            if(!found) showToast("No old data found.");
+        }
+
+        /* --- NAVIGATION --- */
         function switchView(viewId, btn) {
             stopFocus();
             closeModal();
@@ -381,7 +402,7 @@
             setTimeout(() => t.className = '', 3000);
         }
 
-        /* TASKS */
+        /* --- TASKS --- */
         function addNewTask() {
             let input = document.getElementById('task-input');
             if(!input.value.trim()) return showToast('Enter task name');
@@ -434,7 +455,7 @@
             }
         }
 
-        /* TOPICS */
+        /* --- TOPICS --- */
         function addTopic() {
             let sub = document.getElementById('inp-subject').value;
             let top = document.getElementById('inp-topic').value;
@@ -476,20 +497,18 @@
         }
         function deleteTopic() { if(confirm('Delete?')) { appData.topics = appData.topics.filter(x => x.id !== editingId); saveData(); renderAll(); closeModal(); } }
 
-        /* RENDERING */
+        /* --- RENDERING --- */
         function renderAll() { renderDashboard(); renderSubjects(); renderHeatmap(); }
         function renderDashboard() {
             let list = document.getElementById('due-list'); list.innerHTML = '';
             let today = new Date().toISOString().split('T')[0];
             let due = appData.topics.filter(t => t.nextDate <= today);
             document.getElementById('due-count').innerText = due.length;
-            document.getElementById('task-count').innerText = appData.tasks.filter(t => !t.completed).length;
+            document.getElementById('task-count').innerText = (appData.tasks || []).filter(t => !t.completed).length;
             document.getElementById('streak-count').innerText = `🔥 ${appData.streak}`;
-            
             let total = appData.topics.reduce((acc, t) => acc + (t.cycle || 0), 0);
             let max = appData.topics.length * (appData.customIntervals || DEFAULT_INTERVALS).length;
             document.getElementById('mastery-score').innerText = max === 0 ? '0%' : Math.round((total/max)*100) + '%';
-
             if(due.length === 0) list.innerHTML = '<div style="text-align:center; padding:20px; color:#888">All caught up!</div>';
             due.forEach(t => list.appendChild(createCardHTML(t, true)));
         }
@@ -498,15 +517,14 @@
             appData.topics.sort((a,b) => a.subject.localeCompare(b.subject)).forEach(t => list.appendChild(createCardHTML(t, false)));
         }
         function createCardHTML(t, isDue) {
-            let div = document.createElement('div');
-            div.className = 'glass-card subject-item';
+            let div = document.createElement('div'); div.className = 'glass-card subject-item';
             div.innerHTML = `<div class="cycle-badge" style="background:${t.subjectColor}">C${t.cycle}</div><div style="font-size:0.8rem; color:${t.subjectColor}">${t.subject}</div><div style="font-size:1.1rem; font-weight:bold;">${t.topic}</div><div style="display:flex; justify-content:space-between; margin-top:10px; align-items:center;"><div style="font-size:0.8rem; color:#888;">${t.nextDate}</div><div><button class="btn-icon" onclick="toggleNotes(${t.id})">📝</button><button class="btn-icon" onclick="openEdit(${t.id})">⚙️</button>${isDue ? `<button class="btn-revised" onclick="markRevised(${t.id})">✔</button>` : ''}</div></div><div id="notes-${t.id}" class="notes-area"><textarea onchange="saveNote(${t.id}, this.value)">${t.notes || ''}</textarea></div>`;
             return div;
         }
         function toggleNotes(id) { document.getElementById(`notes-${id}`).classList.toggle('visible'); }
         function saveNote(id, val) { let t = appData.topics.find(x => x.id === id); if(t) { t.notes = val; saveData(); } }
 
-        /* HEATMAP */
+        /* --- HEATMAP --- */
         function renderHeatmap() {
             let c = document.getElementById('heatmap'); c.innerHTML = '';
             let map = {}; (appData.history || []).forEach(h => map[h.date] = (map[h.date]||0)+1);
@@ -534,7 +552,7 @@
         }
         function closeHistoryModal() { document.getElementById('history-modal').classList.remove('open'); }
 
-        /* UTILS */
+        /* --- UTILS --- */
         function checkStreak() {
             let today = new Date().toDateString();
             if(appData.lastLogin !== today) {
@@ -557,45 +575,17 @@
             r.readAsText(input.files[0]);
         }
 
-        /* STUDY MODE */
-        function loadFlashcard() {
-            let today = new Date().toISOString().split('T')[0];
-            studyTopics = appData.topics.filter(t => t.nextDate <= today);
-            currentStudyIndex = 0;
-            if(studyTopics.length === 0) {
-                document.getElementById('study-mode-content').querySelector('.flashcard-container').style.display = 'none';
-                document.getElementById('study-empty').style.display = 'block';
-            } else {
-                document.getElementById('study-mode-content').querySelector('.flashcard-container').style.display = 'block';
-                document.getElementById('study-empty').style.display = 'none';
-                showCard();
-            }
-        }
-        function showCard() {
-            document.getElementById('current-flashcard').classList.remove('flipped');
-            if(currentStudyIndex >= studyTopics.length) { loadFlashcard(); return; }
-            let t = studyTopics[currentStudyIndex];
-            document.getElementById('card-front').innerHTML = `<div>${t.subject}</div><h1>${t.topic}</h1>`;
-            document.getElementById('card-back').querySelector('.difficulty-btns').innerHTML = `
-                <button style="background:var(--success); color:black;" onclick="markRecallResult('easy', ${t.id})">Easy</button>
-                <button style="background:var(--primary); color:black;" onclick="markRecallResult('medium', ${t.id})">Good</button>
-                <button style="background:var(--danger); color:white;" onclick="markRecallResult('hard', ${t.id})">Hard</button>
-            `;
-        }
-        function flipCard() { document.getElementById('current-flashcard').classList.toggle('flipped'); }
-        function markRecallResult(diff, id) { markRevised(id); currentStudyIndex++; showCard(); }
-
-        /* TIMER WITH AUDIO FIX */
+        /* --- TIMER --- */
         function startFocus() {
             let mins = document.getElementById('timer-input').value;
             let secs = mins * 60;
             let sound = document.getElementById('sound-select').value;
             
-            // AUDIO START (MUST BE HERE FOR MOBILE)
+            // AUDIO FIX: Explicitly trigger play inside user click event
             if(currentAudioEl) { currentAudioEl.pause(); currentAudioEl.currentTime = 0; }
             if(sound !== 'silent') {
                 currentAudioEl = document.getElementById(`audio-${sound}`);
-                if(currentAudioEl) currentAudioEl.play().catch(e => console.log("Audio blocked"));
+                if(currentAudioEl) currentAudioEl.play().catch(e => alert("Audio blocked. Please interact with the page first."));
             }
 
             document.getElementById('timer-overlay').classList.add('visible');
@@ -616,6 +606,7 @@
             document.getElementById('timer-overlay').classList.remove('visible');
         }
 
+        // Boot
         init();
     </script>
 </body>
