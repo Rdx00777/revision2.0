@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NeonFocus V11.3 Recovery</title>
+    <title>NeonFocus V12 Fresh</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
     
     <style>
-        /* --- THEME VARIABLES --- */
         :root {
             --bg-dark: #050505;
             --card-glass: rgba(255, 255, 255, 0.06);
@@ -90,40 +89,28 @@
         .btn-icon { background: none; border: none; cursor: pointer; font-size: 1.2rem; opacity: 0.8; padding: 5px; color: white; }
         .btn-revised { background: var(--primary); color: black; border: none; padding: 8px 16px; border-radius: 20px; font-weight: bold; font-size: 0.8rem; }
 
-        /* Modals */
-        .modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.95); z-index: 5000;
-            justify-content: center; align-items: center;
-        }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.95); z-index: 5000; justify-content: center; align-items: center; }
         .modal.open { display: flex !important; }
         .modal-content { width: 85%; max-width: 350px; max-height: 90vh; overflow-y: auto; }
 
-        /* Timer Overlay */
-        #timer-overlay { 
-            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: black; 
-            z-index: 9999; justify-content: center; align-items: center; flex-direction: column; 
-        }
+        #timer-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: black; z-index: 9999; justify-content: center; align-items: center; flex-direction: column; }
         #timer-overlay.visible { display: flex !important; }
         .timer-text { font-size: 6rem; font-weight: 300; font-variant-numeric: tabular-nums; }
 
-        .navbar {
-            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 95%; max-width: 450px; height: 65px;
-            background: var(--nav-glass); backdrop-filter: blur(15px); border-radius: 35px; border: 1px solid rgba(255,255,255,0.1);
-            display: flex; justify-content: space-around; align-items: center; z-index: 100;
-        }
+        .navbar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 95%; max-width: 450px; height: 65px; background: var(--nav-glass); backdrop-filter: blur(15px); border-radius: 35px; border: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-around; align-items: center; z-index: 100; }
         .nav-icon { font-size: 1.4rem; opacity: 0.5; transition: 0.3s; cursor: pointer; }
         .nav-icon.active { opacity: 1; color: var(--primary); transform: scale(1.2); }
 
         .notes-area { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); }
         .notes-area.visible { display: block; }
-        .heatmap-container { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; padding: 10px 0; }
-        .heat-day { width: 12px; height: 12px; border-radius: 3px; background: rgba(255,255,255,0.1); cursor: pointer; }
+        
+        .heatmap-container { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; padding: 10px 0; min-height: 50px; }
+        .heat-day { width: 12px; height: 12px; border-radius: 3px; background: rgba(255,255,255,0.1); cursor: pointer; transition: transform 0.1s; }
+        .heat-day:active { transform: scale(1.3); }
         .heat-1 { background: rgba(0, 242, 255, 0.3); } 
         .heat-2 { background: rgba(0, 242, 255, 0.6); }
         .heat-3 { background: rgba(0, 242, 255, 1.0); }
         
-        /* History Modal Items */
         .history-item { display: flex; gap: 15px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1); align-items: center; }
         .history-date { font-size: 0.8rem; color: var(--text-muted); min-width: 50px; text-align: right; border-right: 2px solid var(--secondary); padding-right: 10px; }
 
@@ -231,13 +218,6 @@
             <div class="stat-label" style="margin-top:10px;">Activity (Tap square to view history)</div>
             <div class="heatmap-container" id="heatmap"></div>
         </div>
-        
-        <div class="glass-card" style="border-color:var(--secondary);">
-            <h3 style="color:var(--secondary);">⚠️ Emergency Restore</h3>
-            <p style="font-size:0.8rem; color:var(--text-muted);">Your file was detected. Click below to force-restore it.</p>
-            <button class="btn-main" style="background:var(--secondary); color:white;" onclick="restoreEmbeddedBackup()">Restore My Backup</button>
-        </div>
-
         <h3>Settings</h3>
         <div class="glass-card">
             <div class="stat-label">Theme</div>
@@ -322,26 +302,23 @@
     </nav>
 
     <script>
-        const STORAGE_KEY = 'neon_focus_master_v1';
+        const STORAGE_KEY = 'neon_focus_v12_fresh'; // NEW KEY FOR FRESH START
         const DEFAULT_INTERVALS = [3, 7, 14, 30, 60];
         
-        // --- EMBEDDED USER BACKUP ---
-        const USER_BACKUP = {"topics":[{"id":1763612472907,"subject":"Anthropology","topic":"Tribal India & Marriage","subjectColor":"#7d2222","notes":"","cycle":2,"nextDate":"2025-11-27"},{"id":1763612577607,"subject":"Anthropology","topic":"Family & Kinship ","subjectColor":"#9c2c2c","notes":"","cycle":2,"nextDate":"2025-11-28"},{"id":1763612638854,"subject":"Anthropology","topic":"Economic & Political Organization ","subjectColor":"#7d2222","notes":"","cycle":1,"nextDate":"2025-11-22"},{"id":1763612656488,"subject":"Anthropology","topic":"Religion, Magic & Rituals","subjectColor":"#7d2222","notes":"","cycle":1,"nextDate":"2025-11-23"},{"id":1763612685933,"subject":"Anthropology","topic":"Classical, Historical Particularism & Diffusionism","subjectColor":"#7d2222","notes":"","cycle":1,"nextDate":"2025-11-23"},{"id":1763612706037,"subject":"Anthropology","topic":"Functionalism & Structuralism ","subjectColor":"#7d2222","notes":"","cycle":1,"nextDate":"2025-11-24"},{"id":1763612729976,"subject":"Anthropology","topic":"Cultural Personality School & Neo Evolutionary School ","subjectColor":"#7d2222","notes":"","cycle":0,"nextDate":"2025-11-22"},{"id":1763612766120,"subject":"Anthropology","topic":"Post Modernism | Symbolic & Cognitive Anthropology ","subjectColor":"#7d2222","notes":"","cycle":0,"nextDate":"2025-11-23"},{"id":1763612780773,"subject":"Anthropology","topic":"Descent & Alliance Theory ","subjectColor":"#7d2222","notes":"","cycle":0,"nextDate":"2025-11-24"},{"id":1763612794972,"subject":"Anthropology","topic":"Evolution & Synthetic Theory","subjectColor":"#7d2222","notes":"","cycle":0,"nextDate":"2025-11-25"},{"id":1763612811494,"subject":"Anthropology","topic":"Primates","subjectColor":"#7d2222","notes":"","cycle":0,"nextDate":"2025-11-26"}],"history":[{"date":"2025-11-20","title":"Classical, Historical Particularism & Diffusionism","subject":"Anthropology","color":"#7d2222"},{"date":"2025-11-21","title":"Functionalism & Structuralism ","subject":"Anthropology","color":"#7d2222"},{"date":"2025-11-21","title":"Family & Kinship ","subject":"Anthropology","color":"#9c2c2c"}],"streak":2,"lastLogin":"Fri Nov 21 2025","customIntervals":[3,7,14,30,60],"theme":"neon","subjectColors":{"Anthropology":"#7d2222"},"username":"Raj"};
-
         let appData = { topics: [], history: [], tasks: [], streak: 0, lastLogin: '', customIntervals: DEFAULT_INTERVALS, theme: 'neon', subjectColors: {} };
         let timerInt, currentAudioEl, editingId, studyTopics = [], currentStudyIndex = 0;
 
         function init() {
             let raw = localStorage.getItem(STORAGE_KEY);
             if (raw) {
-                appData = JSON.parse(raw);
+                try {
+                    appData = JSON.parse(raw);
+                    if(!appData.tasks) appData.tasks = [];
+                } catch(e) { console.error("Data Reset"); }
             } else {
-                // Auto-load embedded backup if no data exists
-                appData = USER_BACKUP;
-                saveData();
+                saveData(); // Save empty fresh data
             }
-            if(!appData.tasks) appData.tasks = [];
-
+            
             document.getElementById('header-date').innerText = new Date().toLocaleDateString();
             if(appData.username) document.getElementById('inp-username').value = appData.username;
             if(appData.customIntervals) document.getElementById('inp-intervals').value = appData.customIntervals.join(', ');
@@ -353,17 +330,7 @@
 
         function saveData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); }
 
-        function restoreEmbeddedBackup() {
-            if(confirm("This will overwrite current data with your backup file. Proceed?")) {
-                appData = USER_BACKUP;
-                if(!appData.tasks) appData.tasks = [];
-                saveData();
-                renderAll();
-                showToast("Backup Restored!");
-            }
-        }
-
-        /* --- NAVIGATION & UI --- */
+        /* --- NAVIGATION --- */
         function switchView(viewId, btn) {
             stopFocus();
             closeModal();
@@ -445,20 +412,10 @@
         function addTopic() {
             let sub = document.getElementById('inp-subject').value;
             let top = document.getElementById('inp-topic').value;
-            let col = document.getElementById('inp-color').value;
             if(!sub || !top) return showToast('Missing Fields');
-
-            appData.topics.push({
-                id: Date.now(), subject: sub, topic: top, subjectColor: col, notes: '',
-                cycle: 0, nextDate: new Date().toISOString().split('T')[0]
-            });
-            appData.subjectColors[sub] = col;
-            saveData();
-            document.getElementById('inp-topic').value = '';
-            renderAll();
-            showToast('Topic Added');
+            appData.topics.push({ id: Date.now(), subject: sub, topic: top, subjectColor: document.getElementById('inp-color').value, notes: '', cycle: 0, nextDate: new Date().toISOString().split('T')[0] });
+            saveData(); renderAll(); document.getElementById('inp-topic').value = ''; showToast('Topic Added');
         }
-
         function markRevised(id) {
             let t = appData.topics.find(x => x.id === id);
             if(!t) return;
@@ -471,18 +428,15 @@
             t.nextDate = next.toISOString().split('T')[0];
             saveData(); renderAll(); showToast(`Next review in ${days} days`);
         }
-
         function openEdit(id) {
-            editingId = id;
-            let t = appData.topics.find(x => x.id === id);
+            editingId = id; let t = appData.topics.find(x => x.id === id);
             document.getElementById('edit-date').value = t.nextDate;
             document.getElementById('edit-name').value = t.topic;
             document.getElementById('edit-subject').value = t.subject;
-            document.getElementById('edit-color').value = t.subjectColor || '#00f2ff';
-            document.getElementById('edit-cycle').value = t.cycle || 0;
+            document.getElementById('edit-color').value = t.subjectColor;
+            document.getElementById('edit-cycle').value = t.cycle;
             document.getElementById('edit-modal').classList.add('open');
         }
-        
         function saveEdit() {
             let t = appData.topics.find(x => x.id === editingId);
             if(t) {
@@ -494,12 +448,84 @@
                 saveData(); renderAll(); closeModal();
             }
         }
-        
-        function deleteTopic() {
-            if(confirm('Delete?')) {
-                appData.topics = appData.topics.filter(x => x.id !== editingId);
-                saveData(); renderAll(); closeModal();
+        function deleteTopic() { if(confirm('Delete?')) { appData.topics = appData.topics.filter(x => x.id !== editingId); saveData(); renderAll(); closeModal(); } }
+
+        /* --- RENDERING --- */
+        function renderAll() { renderDashboard(); renderSubjects(); renderHeatmap(); }
+        function renderDashboard() {
+            let list = document.getElementById('due-list'); list.innerHTML = '';
+            let today = new Date().toISOString().split('T')[0];
+            let due = appData.topics.filter(t => t.nextDate <= today);
+            document.getElementById('due-count').innerText = due.length;
+            document.getElementById('task-count').innerText = (appData.tasks || []).filter(t => !t.completed).length;
+            document.getElementById('streak-count').innerText = `🔥 ${appData.streak}`;
+            let total = appData.topics.reduce((acc, t) => acc + (t.cycle || 0), 0);
+            let max = appData.topics.length * (appData.customIntervals || DEFAULT_INTERVALS).length;
+            document.getElementById('mastery-score').innerText = max === 0 ? '0%' : Math.round((total/max)*100) + '%';
+            if(due.length === 0) list.innerHTML = '<div style="text-align:center; padding:20px; color:#888">All caught up!</div>';
+            due.forEach(t => list.appendChild(createCardHTML(t, true)));
+        }
+        function renderSubjects() {
+            let list = document.getElementById('all-list'); list.innerHTML = '';
+            appData.topics.sort((a,b) => a.subject.localeCompare(b.subject)).forEach(t => list.appendChild(createCardHTML(t, false)));
+        }
+        function createCardHTML(t, isDue) {
+            let div = document.createElement('div'); div.className = 'glass-card subject-item';
+            div.innerHTML = `<div class="cycle-badge" style="background:${t.subjectColor}">C${t.cycle}</div><div style="font-size:0.8rem; color:${t.subjectColor}">${t.subject}</div><div style="font-size:1.1rem; font-weight:bold;">${t.topic}</div><div style="display:flex; justify-content:space-between; margin-top:10px; align-items:center;"><div style="font-size:0.8rem; color:#888;">${t.nextDate}</div><div><button class="btn-icon" onclick="toggleNotes(${t.id})">📝</button><button class="btn-icon" onclick="openEdit(${t.id})">⚙️</button>${isDue ? `<button class="btn-revised" onclick="markRevised(${t.id})">✔</button>` : ''}</div></div><div id="notes-${t.id}" class="notes-area"><textarea onchange="saveNote(${t.id}, this.value)">${t.notes || ''}</textarea></div>`;
+            return div;
+        }
+        function toggleNotes(id) { document.getElementById(`notes-${id}`).classList.toggle('visible'); }
+        function saveNote(id, val) { let t = appData.topics.find(x => x.id === id); if(t) { t.notes = val; saveData(); } }
+
+        /* --- HEATMAP --- */
+        function renderHeatmap() {
+            let c = document.getElementById('heatmap'); c.innerHTML = '';
+            let map = {}; (appData.history || []).forEach(h => map[h.date] = (map[h.date]||0)+1);
+            for(let i=89; i>=0; i--) {
+                let d = new Date(); d.setDate(d.getDate()-i);
+                let key = d.toISOString().split('T')[0];
+                let v = map[key] || 0;
+                let div = document.createElement('div');
+                div.className = `heat-day heat-${v>4?3:v>1?2:v>0?1:0}`;
+                div.onclick = () => openHistoryModal(key);
+                c.appendChild(div);
             }
+        }
+        function openHistoryModal(date) {
+            let list = document.getElementById('history-modal-list'); list.innerHTML = '';
+            document.getElementById('history-modal-title').innerText = `Activity: ${date}`;
+            let acts = (appData.history || []).filter(h => h.date === date);
+            if(acts.length === 0) list.innerHTML = '<div style="text-align:center; color:gray; padding:20px;">No activity.</div>';
+            else acts.forEach(h => {
+                let d = document.createElement('div'); d.className = 'history-item';
+                d.innerHTML = `<div class="history-date" style="border-color:${h.color}">${h.subject}</div><div>${h.title}</div>`;
+                list.appendChild(d);
+            });
+            document.getElementById('history-modal').classList.add('open');
+        }
+        function closeHistoryModal() { document.getElementById('history-modal').classList.remove('open'); }
+
+        /* --- UTILS --- */
+        function checkStreak() {
+            let today = new Date().toDateString();
+            if(appData.lastLogin !== today) {
+                let y = new Date(); y.setDate(y.getDate()-1);
+                if(appData.lastLogin === y.toDateString()) appData.streak++; else appData.streak=1;
+                appData.lastLogin = today; saveData();
+            }
+        }
+        function switchTheme(t) { document.body.className = `theme-${t}`; appData.theme=t; saveData(); }
+        function updateIntervals() { appData.customIntervals = document.getElementById('inp-intervals').value.split(',').map(Number); saveData(); showToast('Saved'); }
+        function updateUsername() { appData.username = document.getElementById('inp-username').value; saveData(); }
+        function exportData() {
+            let a = document.createElement('a'); 
+            a.href = URL.createObjectURL(new Blob([JSON.stringify(appData)], {type: "application/json"}));
+            a.download = `neon_backup.json`; a.click();
+        }
+        function importData(input) {
+            let r = new FileReader();
+            r.onload = e => { try { appData = JSON.parse(e.target.result); saveData(); renderAll(); showToast("Restored"); } catch(e){alert("Error");} };
+            r.readAsText(input.files[0]);
         }
 
         /* --- STUDY MODE --- */
@@ -530,132 +556,12 @@
         function flipCard() { document.getElementById('current-flashcard').classList.toggle('flipped'); }
         function markRecallResult(diff, id) { markRevised(id); currentStudyIndex++; showCard(); }
 
-        /* --- RENDERING --- */
-        function renderAll() {
-            renderDashboard(); renderSubjects(); renderHeatmap();
-        }
-
-        function renderDashboard() {
-            let list = document.getElementById('due-list'); list.innerHTML = '';
-            let today = new Date().toISOString().split('T')[0];
-            let due = appData.topics.filter(t => t.nextDate <= today);
-            document.getElementById('due-count').innerText = due.length;
-            document.getElementById('task-count').innerText = appData.tasks.filter(t => !t.completed).length;
-            document.getElementById('streak-count').innerText = `🔥 ${appData.streak}`;
-            document.getElementById('mastery-score').innerText = `${calculateMasteryScore()}%`;
-            
-            if(due.length === 0) list.innerHTML = '<div style="text-align:center; padding:20px; color:#888">All caught up!</div>';
-            due.forEach(t => list.appendChild(createCardHTML(t, true)));
-        }
-
-        function renderSubjects() {
-            let list = document.getElementById('all-list'); list.innerHTML = '';
-            appData.topics.sort((a,b) => a.subject.localeCompare(b.subject)).forEach(t => list.appendChild(createCardHTML(t, false)));
-        }
-
-        function createCardHTML(t, isDue) {
-            let div = document.createElement('div');
-            div.className = 'glass-card subject-item';
-            div.innerHTML = `
-                <div class="cycle-badge" style="background:${t.subjectColor}">C${t.cycle}</div>
-                <div style="font-size:0.8rem; color:${t.subjectColor}">${t.subject}</div>
-                <div style="font-size:1.1rem; font-weight:bold;">${t.topic}</div>
-                <div style="display:flex; justify-content:space-between; margin-top:10px; align-items:center;">
-                    <div style="font-size:0.8rem; color:#888;">${t.nextDate}</div>
-                    <div>
-                        <button class="btn-icon" onclick="toggleNotes(${t.id})">📝</button>
-                        <button class="btn-icon" onclick="openEdit(${t.id})">⚙️</button>
-                        ${isDue ? `<button class="btn-revised" onclick="markRevised(${t.id})">✔</button>` : ''}
-                    </div>
-                </div>
-                <div id="notes-${t.id}" class="notes-area">
-                    <textarea onchange="saveNote(${t.id}, this.value)">${t.notes || ''}</textarea>
-                </div>
-            `;
-            return div;
-        }
-
-        function toggleNotes(id) { document.getElementById(`notes-${id}`).classList.toggle('visible'); }
-        function saveNote(id, val) { let t = appData.topics.find(x => x.id === id); if(t) { t.notes = val; saveData(); } }
-
-        /* --- HEATMAP --- */
-        function renderHeatmap() {
-            let c = document.getElementById('heatmap'); c.innerHTML = '';
-            let map = {}; (appData.history || []).forEach(h => map[h.date] = (map[h.date]||0)+1);
-            for(let i=89; i>=0; i--) {
-                let d = new Date(); d.setDate(d.getDate()-i);
-                let key = d.toISOString().split('T')[0];
-                let v = map[key] || 0;
-                let div = document.createElement('div');
-                div.className = `heat-day heat-${v>4?3:v>1?2:v>0?1:0}`;
-                div.onclick = () => openHistoryModal(key);
-                c.appendChild(div);
-            }
-        }
-
-        function openHistoryModal(date) {
-            let list = document.getElementById('history-modal-list');
-            list.innerHTML = '';
-            document.getElementById('history-modal-title').innerText = `Activity: ${date}`;
-            
-            let acts = (appData.history || []).filter(h => h.date === date);
-            if(acts.length === 0) {
-                list.innerHTML = '<div style="text-align:center; color:gray; padding:20px;">No activity.</div>';
-            } else {
-                acts.forEach(h => {
-                    let d = document.createElement('div');
-                    d.className = 'history-item';
-                    d.innerHTML = `<div class="history-date" style="border-color:${h.color}">${h.subject}</div><div>${h.title}</div>`;
-                    list.appendChild(d);
-                });
-            }
-            document.getElementById('history-modal').classList.add('open');
-        }
-        function closeHistoryModal() { document.getElementById('history-modal').classList.remove('open'); }
-
-        /* --- UTILS --- */
-        function calculateMasteryScore() {
-            let topics = appData.topics || [];
-            if(topics.length === 0) return 0;
-            let maxCycles = (appData.customIntervals || DEFAULT_INTERVALS).length;
-            let total = topics.reduce((acc, t) => acc + (t.cycle || 0), 0);
-            let max = topics.length * maxCycles;
-            return max === 0 ? 0 : Math.round((total/max)*100);
-        }
-        function checkStreak() {
-            let today = new Date().toDateString();
-            if(appData.lastLogin !== today) {
-                let y = new Date(); y.setDate(y.getDate()-1);
-                if(appData.lastLogin === y.toDateString()) appData.streak++; else appData.streak=1;
-                appData.lastLogin = today; saveData();
-            }
-        }
-        function switchTheme(t) { document.body.className = `theme-${t}`; appData.theme=t; saveData(); }
-        function updateIntervals() {
-            appData.customIntervals = document.getElementById('inp-intervals').value.split(',').map(Number);
-            saveData(); showToast('Saved');
-        }
-        function updateUsername() { appData.username = document.getElementById('inp-username').value; saveData(); }
-        function exportData() {
-            let a = document.createElement('a'); 
-            a.href = URL.createObjectURL(new Blob([JSON.stringify(appData)], {type: "application/json"}));
-            a.download = `neon_backup.json`; a.click();
-        }
-        function importData(input) {
-            let r = new FileReader();
-            r.onload = e => {
-                try { appData = JSON.parse(e.target.result); saveData(); renderAll(); showToast("Restored"); } catch(e){alert("Error parsing file: " + e.message);}
-            };
-            r.readAsText(input.files[0]);
-        }
-
         /* --- TIMER --- */
         function startFocus() {
             let mins = document.getElementById('timer-input').value;
             let secs = mins * 60;
             let sound = document.getElementById('sound-select').value;
             
-            // AUDIO FIX
             if(currentAudioEl) { currentAudioEl.pause(); currentAudioEl.currentTime = 0; }
             if(sound !== 'silent') {
                 currentAudioEl = document.getElementById(`audio-${sound}`);
@@ -680,8 +586,8 @@
             document.getElementById('timer-overlay').classList.remove('visible');
         }
 
-        // Boot
         init();
     </script>
 </body>
 </html>
+
