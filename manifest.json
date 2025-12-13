@@ -1,5 +1,5 @@
 {
-    "name": "NeonFocus V10.5",
+    "name": "NeonFocus V12",
     "short_name": "NeonFocus",
     "start_url": "index.html",
     "display": "standalone",
@@ -19,3 +19,4 @@
         }
     ]
 }
+
